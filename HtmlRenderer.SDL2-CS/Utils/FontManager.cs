@@ -43,6 +43,13 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             public Font Clone() { return new Font(RWops, mem, hash); }
 
+            public override string ToString()
+            {
+                string line = "";
+                line += String.Format("fontFamilyId:{0} fontStyle:{1}", fontFamilyId, fontStyle);
+                return line;
+            }
+
         }
 
 
@@ -84,19 +91,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void SetDefaultsFontFamily(string serif, string sans_serif = "", string monospace = "")
         {
-            foreach (var kv in _defaultsFontFamilyId)
+
+            foreach (var familyname in _defaultsFontFamilyId.Keys.ToList())
             {
-                if (GetFontFamilyId(kv.Key) < 0)
+                if (GetFontFamilyId(familyname) < 0)
                 {
                     string value = "";
-                    switch (kv.Key)
+                    switch (familyname)
                     {
                         case "serif": value = serif; break;
                         case "sans-serif": value = sans_serif; break;
                         case "monospace": value = monospace; break;
                     }
                     if (value != "")
-                        _defaultsFontFamilyId[kv.Key] = GetFontFamilyId(value);
+                        _defaultsFontFamilyId[familyname] = GetFontFamilyId(value);
 
                 }
             }
@@ -134,16 +142,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
             //size
             int size_id = (int)Math.Round(_defaultFontSize * size);
             if (!fc_style.ContainsKey(size_id))
-                fc_style[size_id] = OpenTTF_Font(fontfamily_id,);
+                fc_style[size_id] = OpenTTF_Font(fontfamily_id, size_id, style_id);
 
             return fc_style[size_id];
 
         }
 
-        private IntPtr OpenTTF_Font(int fontfamily_id, int style_id, int size_id)
+        private IntPtr OpenTTF_Font(int fontfamily_id, int size_id, int style_id)
         {
             int font_id = FindBestMatchFontId(fontfamily_id, style_id);
+            Console.WriteLine("Font:" + font_id + " " + _fonts[font_id].ToString());
             IntPtr font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, size_id, _fonts[font_id].index);
+            if (font == IntPtr.Zero)
+                Console.WriteLine("Failed to load font! SDL_ttf Error: {0}", SDL.SDL_GetError());
+
             SDL_ttf.TTF_SetFontStyle(font, style_id);
             //SDL_ttf.TTF_SetFontHinting(font, )
             return font;
@@ -160,7 +172,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 if (_fonts[font_id].fontStyle == real_fontStyle)
                     return font_id;
 
-                if (_fonts[font_id].fontStyle == 0 && best_font_id < 0) best_font_id = font_id;
+                if (best_font_id < 0 && _fonts[font_id].fontStyle == 0) best_font_id = font_id;
 
                 if (real_fontStyle == 3 && _fonts[font_id].fontStyle > 0) best_font_id = font_id;
             }
@@ -177,6 +189,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 RegisterFontFromFile(file.FullName);
             }
 
+            Console.WriteLine("Registered FontFamily:");
+            foreach (var fontname in _fontFamily)
+                Console.WriteLine("  " + fontname);
+
         }
 
         public void RegisterFontFromFile(string filename)
@@ -187,8 +203,6 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void RegisterFontFromBytes(byte[] bytes)
         {
-
-
             string hash = "";
             using (HashAlgorithm sha = new SHA1CryptoServiceProvider())
             {
@@ -197,14 +211,8 @@ namespace HtmlRenderer.SDL2_CS.Utils
             }
 
             for (int i = 0; i < _fonts.Count; i++)
-            {
                 if (_fonts[i].hash == hash)
-                {
-                    //Console.WriteLine("  Already Loaded");
                     return;
-                }
-
-            }
 
             try
             {
@@ -225,7 +233,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         private int GetFontFamilyId(string familyname, bool create_if_absent = false)
         {
             string familyname_l = familyname.ToLower();
-            int index = _fontFamily.IndexOf(familyname);
+            int index = _fontFamily.IndexOf(familyname_l);
 
             if (index == -1 && _defaultsFontFamilyId.ContainsKey(familyname_l))
                 index = _defaultsFontFamilyId[familyname_l];
@@ -235,9 +243,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 _fontFamily.Add(familyname_l);
                 index = _fontFamily.Count - 1;
                 if (_defaultsFontFamilyId.ContainsKey(familyname_l))
-                {
                     _defaultsFontFamilyId[familyname_l] = index;
-                }
             }
             if (index == -1)
                 index = _defaultFontFamilyId;
@@ -270,7 +276,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 Console.WriteLine("  TTF_GetFontStyle: {0}", font_style);
                 */
 
-                _fonts[font_id].fontFamilyId = GetFontFamilyId(fontface_familyname);
+                _fonts[font_id].fontFamilyId = GetFontFamilyId(fontface_familyname, true);
                 _fonts[font_id].fontStyle = font_style;
                 _fonts[font_id].mono = fontface_mono;
 
@@ -289,12 +295,23 @@ namespace HtmlRenderer.SDL2_CS.Utils
             }
         }
 
+        public void ClearFontCache()
+        {
+            foreach (var family in _fontCache)
+                foreach (var style in _fontCache[family.Key])
+                    foreach (var size in _fontCache[family.Key][style.Key])
+                        SDL_ttf.TTF_CloseFont(size.Value);
+
+            _fontCache.Clear();
+        }
+
         public void Quit()
         {
             for (int i = 0; i < _fonts.Count; i++)
                 if (_fonts[i].index == 0)
                     Marshal.FreeHGlobal(_fonts[i].mem);
 
+            _fonts.Clear();
         }
 
     }
