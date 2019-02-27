@@ -6,7 +6,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using SDL2;
 using System.IO;
-
+using System.Security.Cryptography;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
@@ -14,8 +14,16 @@ namespace HtmlRenderer.SDL2_CS.Utils
     {
         private static FontManager _instance = null;
 
-        private readonly List<IntPtr> font_RWops = new List<IntPtr>();
-        private readonly List<IntPtr> font_mem = new List<IntPtr>();
+        internal struct Font
+        {
+            public Font(IntPtr RWops, IntPtr mem, string hash, long index = 0) { this.RWops = RWops; this.mem = mem; this.hash = hash; this.index = index; }
+            public IntPtr RWops;
+            public IntPtr mem;
+            public long index;
+            public string hash;
+        }
+
+        private readonly List<Font> _fonts = new List<Font>();
 
         private FontManager()
         {
@@ -55,18 +63,44 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void RegisterFontFromBytes(byte[] bytes)
         {
-            int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
-            IntPtr mem = Marshal.AllocHGlobal(size);
-            font_mem.Add(mem);
-            Marshal.Copy(bytes, 0, mem, size);
-            IntPtr RWops_font = SDL.SDL_RWFromMem(mem, size);
-            font_RWops.Add(RWops_font);
-            CollectFontInfo(font_RWops.Count - 1);
+
+
+            string hash = "";
+            using (HashAlgorithm sha = new SHA1CryptoServiceProvider())
+            {
+                byte[] sha1_hash = sha.ComputeHash(bytes);
+                hash = BitConverter.ToString(sha1_hash).Replace("-", string.Empty);
+            }
+
+            for (int i = 0; i < _fonts.Count; i++)
+            {
+                if (_fonts[i].hash == hash)
+                {
+                    //Console.WriteLine("  Already Loaded");
+                    return;
+                }
+
+            }
+
+            try
+            {
+
+                int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
+                IntPtr mem = Marshal.AllocHGlobal(size);
+                Marshal.Copy(bytes, 0, mem, size);
+                IntPtr RWops = SDL.SDL_RWFromMem(mem, size);
+                _fonts.Add(new Font(RWops, mem, hash, 0));
+                CollectFontInfo(_fonts.Count - 1);
+            }
+            catch
+            {
+
+            }
         }
 
-        public void CollectFontInfo(int font_RWops_id)
+        public void CollectFontInfo(int font_id)
         {
-            IntPtr font = SDL_ttf.TTF_OpenFontRW(font_RWops[font_RWops_id], 0, 16);
+            IntPtr font = SDL_ttf.TTF_OpenFontRW(_fonts[font_id].RWops, 0, 16);
             if (font == IntPtr.Zero)
             {
                 Console.WriteLine("Failed to load font! SDL_ttf Error: {0}", SDL.SDL_GetError());
@@ -76,26 +110,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 long fontfaces = SDL_ttf.TTF_FontFaces(font);
                 string fontface_familyname = SDL_ttf.TTF_FontFaceFamilyName(font);
                 string fontface_stylename = SDL_ttf.TTF_FontFaceStyleName(font);
-                int fontface_mono = SDL_ttf.TTF_FontFaceIsFixedWidth(font);
-
+                bool fontface_mono = SDL_ttf.TTF_FontFaceIsFixedWidth(font) > 0;
+                Console.WriteLine("  Hash:{0}", _fonts[font_id].hash);
                 Console.WriteLine("  TTF_FontFaces: {0}", fontfaces);
                 Console.WriteLine("  TTF_FontFaceFamilyName: {0}", fontface_familyname);
                 Console.WriteLine("  TTF_FontFaceStyleName: {0}", fontface_stylename);
                 Console.WriteLine("  TTF_FontFaceIsFixedWidth: {0}", fontface_mono);
             }
-            /*
-             3.3.14 TTF_FontFaces Get the number of faces in a font
- 3.3.15 TTF_FontFaceIsFixedWidth Get whether font is monospaced or not
- 3.3.16 TTF_FontFaceFamilyName Get current font face family name string
- 3.3.17 TTF_FontFaceStyleName
-     */
         }
 
         public void Clear()
         {
-            for (int i = 0; i < font_mem.Count; i++)
+            for (int i = 0; i < _fonts.Count; i++)
             {
-                Marshal.FreeHGlobal(font_mem[i]);
+                Marshal.FreeHGlobal(_fonts[i].mem);
             }
         }
 

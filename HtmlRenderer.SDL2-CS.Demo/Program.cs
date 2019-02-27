@@ -78,6 +78,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             FontManager fm = FontManager.Instance;
             fm.RegisterFontsFromDir("fonts");
+            fm.RegisterFontsFromDir("fonts");
 
             while (!exit)
             {
