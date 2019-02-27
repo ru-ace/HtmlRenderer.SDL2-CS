@@ -78,7 +78,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             FontManager fm = FontManager.Instance;
             fm.RegisterFontsFromDir("fonts");
-            fm.RegisterFontsFromDir("fonts");
+            fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
 
             while (!exit)
             {
@@ -91,7 +91,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
                 SDL.SDL_Delay(50);
             }
 
-            fm.Clear();
+            fm.Quit();
             QuitSDL2();
 
 
