@@ -208,6 +208,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             FontManager fm = FontManager.Instance;
             fm.UseRWops = false;
+            fm.UseFontCache = true;
             fm.RegisterFontsFromDir("fonts");
             fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
 
@@ -216,6 +217,9 @@ namespace HtmlRenderer.SDL2_CS.Demo
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             TestFM(renderer, "", 1.5f);
+            //TestFM(renderer, "", 1.5f);
+            //TestFM(renderer, "", 1.5f);
+            //TestFM(renderer, "", 1.5f);
             //TestFM(renderer, "", 0.5f);
             //TestFM(renderer, "", 1f);
             //TestFM(renderer, "", 2f);

@@ -16,6 +16,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         //Singleton 
         private static FontManager _instance = null;
         public bool UseRWops = false;
+        public bool UseFontCache = true;
         internal class Font
         {
             public Font(IntPtr RWops, IntPtr mem, string hash, string filename)
@@ -129,7 +130,8 @@ namespace HtmlRenderer.SDL2_CS.Utils
             int fontfamily_id = GetFontFamilyId(familyname);
             int style_id = (int)style;
             int size_id = (int)Math.Round(_defaultFontSize * size);
-            //return OpenTTF_Font(fontfamily_id, size_id, style_id);
+            if (!UseFontCache)
+                return OpenTTF_Font(fontfamily_id, size_id, style_id);
 
             //fontfamily
             if (!_fontCache.ContainsKey(fontfamily_id))
@@ -319,10 +321,11 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void ClearFontCache()
         {
-            foreach (var family in _fontCache)
-                foreach (var style in _fontCache[family.Key])
-                    foreach (var size in _fontCache[family.Key][style.Key])
-                        SDL_ttf.TTF_CloseFont(size.Value);
+            if (UseFontCache)
+                foreach (var family in _fontCache)
+                    foreach (var style in _fontCache[family.Key])
+                        foreach (var size in _fontCache[family.Key][style.Key])
+                            SDL_ttf.TTF_CloseFont(size.Value);
 
             _fontCache.Clear();
         }
