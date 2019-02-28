@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
-
+using System.Runtime.InteropServices;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
-    internal static class Helpers
+    public static class Helpers
     {
         public static RRect ToRRect(this SDL.SDL_Rect rect)
         {
@@ -29,11 +29,21 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             return new SDL.SDL_Color { a = color.A, r = color.R, g = color.G, b = color.B };
         }
-        /*
-        public static SDL.SDL_Rect ToSDL_Rect(this IntPtr ptr)
-        {
 
+        public static SDL.SDL_Rect ToSDL_Rect(this SDL.SDL_Surface sdl_surface)
+        {
+            return new SDL.SDL_Rect { x = 0, y = 0, w = sdl_surface.w, h = sdl_surface.h };
         }
-        */
+        public static T As<T>(this IntPtr ptr)
+        {
+            return Marshal.PtrToStructure<T>(ptr);
+        }
+        public static bool ShowSDLError(this IntPtr ptr, string error_text)
+        {
+            if (ptr == IntPtr.Zero)
+                Console.WriteLine(error_text + " SDL_ttf Error: {0}", SDL.SDL_GetError());
+            return ptr == IntPtr.Zero;
+        }
+
     }
 }

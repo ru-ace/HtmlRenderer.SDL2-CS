@@ -18,11 +18,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         internal class Font
         {
-            public Font(IntPtr RWops, IntPtr mem, string hash)
+            public Font(IntPtr RWops, IntPtr mem, string hash, string filename)
             {
                 this.RWops = RWops;
                 this.mem = mem;
                 this.hash = hash;
+                this.filename = filename;
 
                 index = 0;
                 fontFamilyId = -1;
@@ -30,6 +31,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 mono = false;
             }
 
+            public string filename = "";
             public IntPtr RWops;
             public IntPtr mem;
             public int index;
@@ -41,7 +43,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
             public int fontStyle;
             public bool mono;
 
-            public Font Clone() { return new Font(RWops, mem, hash); }
+            public Font Clone() { return new Font(RWops, mem, hash, filename); }
 
             public override string ToString()
             {
@@ -123,26 +125,26 @@ namespace HtmlRenderer.SDL2_CS.Utils
             if (_defaultFontFamilyId == -1)
                 throw new Exception("Run FontManager.Instance.SetDefaultsFontFamily() after calling FontManager.Instance.RegisterFont* methods.");
 
-            //fontfamily
+
             int fontfamily_id = GetFontFamilyId(familyname);
+            int style_id = (int)style;
+            int size_id = (int)Math.Round(_defaultFontSize * size);
+            //return OpenTTF_Font(fontfamily_id, size_id, style_id);
 
-
-
-            if (fontfamily_id == -1) return IntPtr.Zero;
+            //fontfamily
             if (!_fontCache.ContainsKey(fontfamily_id))
                 _fontCache[fontfamily_id] = new Dictionary<int, Dictionary<int, IntPtr>>();
             var fc_family = _fontCache[fontfamily_id];
 
             //style
-            var style_id = (int)style;
             if (!fc_family.ContainsKey(style_id))
                 fc_family[style_id] = new Dictionary<int, IntPtr>();
             var fc_style = fc_family[style_id];
 
             //size
-            int size_id = (int)Math.Round(_defaultFontSize * size);
             if (!fc_style.ContainsKey(size_id))
                 fc_style[size_id] = OpenTTF_Font(fontfamily_id, size_id, style_id);
+
 
             return fc_style[size_id];
 
@@ -151,10 +153,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
         private IntPtr OpenTTF_Font(int fontfamily_id, int size_id, int style_id)
         {
             int font_id = FindBestMatchFontId(fontfamily_id, style_id);
-            Console.WriteLine("Font:" + font_id + " " + _fonts[font_id].ToString());
+            Console.WriteLine("Font:" + font_id + " size=" + size_id + " style=" + style_id + " file=" + _fonts[font_id].filename);
+            //IntPtr font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, size_id, _fonts[font_id].index);
             IntPtr font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, size_id, _fonts[font_id].index);
-            if (font == IntPtr.Zero)
-                Console.WriteLine("Failed to load font! SDL_ttf Error: {0}", SDL.SDL_GetError());
+            font.ShowSDLError("Failed to load font!");
 
             SDL_ttf.TTF_SetFontStyle(font, style_id);
             //SDL_ttf.TTF_SetFontHinting(font, )
@@ -198,10 +200,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
         public void RegisterFontFromFile(string filename)
         {
 
-            RegisterFontFromBytes(File.ReadAllBytes(filename));
+            RegisterFontFromBytes(filename, File.ReadAllBytes(filename));
         }
 
-        public void RegisterFontFromBytes(byte[] bytes)
+        public void RegisterFontFromBytes(string filename, byte[] bytes)
         {
             string hash = "";
             using (HashAlgorithm sha = new SHA1CryptoServiceProvider())
@@ -221,12 +223,16 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 IntPtr mem = Marshal.AllocHGlobal(size);
                 Marshal.Copy(bytes, 0, mem, size);
                 IntPtr RWops = SDL.SDL_RWFromMem(mem, size);
-                _fonts.Add(new Font(RWops, mem, hash));
+                //IntPtr RWops = SDL_RWFromConstMem(mem, size);
+                if (RWops == IntPtr.Zero)
+                    throw new Exception("SDL_RWFromMem error: " + SDL.SDL_GetError());
+
+                _fonts.Add(new Font(RWops, mem, hash, filename));
                 CollectFontInfo(_fonts.Count - 1);
             }
-            catch
+            catch (Exception e)
             {
-
+                Console.WriteLine("RegisterFontFromBytes Exception: {0}", e.Message);
             }
         }
 
@@ -254,6 +260,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         public void CollectFontInfo(int font_id)
         {
             IntPtr font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, 16, _fonts[font_id].index);
+            //IntPtr font = SDL_ttf.TTF_OpenFontRW(_fonts[font_id].RWops, 0, 16);
             if (font == IntPtr.Zero)
             {
                 Console.WriteLine("Failed to load font! SDL_ttf Error: {0}", SDL.SDL_GetError());
@@ -266,6 +273,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 bool fontface_mono = (SDL_ttf.TTF_FontFaceIsFixedWidth(font) > 0);
                 int font_style = SDL_ttf.TTF_GetFontStyle(font);
 
+                _fonts[font_id].fontFamilyId = GetFontFamilyId(fontface_familyname, true);
+                _fonts[font_id].fontStyle = font_style;
+                _fonts[font_id].mono = fontface_mono;
+
                 /*
                 Console.WriteLine("  Hash:{0}", _fonts[font_id].hash);
                 Console.WriteLine("  TTF_FontFaces: {0}", fontfaces);
@@ -275,10 +286,6 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 Console.WriteLine("  TTF_FontFaceStyleName: {0}", fontface_stylename);
                 Console.WriteLine("  TTF_GetFontStyle: {0}", font_style);
                 */
-
-                _fonts[font_id].fontFamilyId = GetFontFamilyId(fontface_familyname, true);
-                _fonts[font_id].fontStyle = font_style;
-                _fonts[font_id].mono = fontface_mono;
 
                 if (_fonts[font_id].index == 0 && fontfaces > 1)
                 {
@@ -313,6 +320,8 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             _fonts.Clear();
         }
-
+        /* mem refers to a void*, IntPtr to an SDL_RWops* */
+        [DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr SDL_RWFromConstMem(IntPtr mem, int size);
     }
 }

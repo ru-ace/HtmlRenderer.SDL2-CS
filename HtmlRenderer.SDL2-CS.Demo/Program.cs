@@ -68,9 +68,12 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
         private static void TestFM(IntPtr renderer, string font_familyname, double font_size_em)
         {
-            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL.SDL_RenderClear(renderer);
-            var textColor = new SDL.SDL_Color();
+
+            var textColor = new SDL.SDL_Color { a = 255, r = 0, g = 0, b = 100 };
+
+            SDL.SDL_GetRendererOutputSize(renderer, out int width, out int height);
+
+            Console.WriteLine("Renderer width={0}, height={1}", width, height);
 
             FontManager fm = FontManager.Instance;
             int y = 0;
@@ -78,9 +81,9 @@ namespace HtmlRenderer.SDL2_CS.Demo
             string[] real_style_name_short = { "R--", "-B-", "--I", "-BI" };
 
             string[] real_style_name = { "Regular|Обычный", "Bold|Жирный", "Italic|Наклонный", "Bold+Italic|Наклонный+Жирный" };
-            for (int style_id = 0; style_id < 16; style_id++)
+            for (int style_id = 0; style_id <= 15; style_id++)
             {
-
+                if (!(style_id == 2 || style_id == 6)) continue;
                 int real_style_id = style_id & 3;
                 string rs_short = real_style_name_short[real_style_id];
 
@@ -107,31 +110,81 @@ namespace HtmlRenderer.SDL2_CS.Demo
                 }
 
                 string text_line = "[" + rs_short + "] " + style_id.ToString() + ": " + real_style_name[real_style_id] + text_addon;
-                Console.WriteLine("Rendering " + text_line + "");
-
+                Console.WriteLine("Rendering {0}: \"" + text_line + "\"", y);
+                //text_line = "TESTываыва";
                 IntPtr font = fm.GetTTF_Font(font_familyname, font_size_em, (RFontStyle)style_id);
-                if (font == IntPtr.Zero)
-                    Console.WriteLine("GetTTF_Font return bad font");
+                font.ShowSDLError("GetTTF_Font return bad font");
 
                 var textSurface = SDL_ttf.TTF_RenderUTF8_Blended(font, text_line, textColor);
-                if (textSurface == IntPtr.Zero)
-                    Console.WriteLine("Unable to render text surface! SDL_ttf Error: {0}", SDL.SDL_GetError());
+                textSurface.ShowSDLError("Unable to render text surface!");
 
                 var texture_text = SDL.SDL_CreateTextureFromSurface(renderer, textSurface);
-                var s_text = Marshal.PtrToStructure<SDL.SDL_Surface>(textSurface);
-                var dst_rect = new SDL.SDL_Rect { x = 0, y = y, w = s_text.w, h = s_text.h };
-                SDL.SDL_RenderCopyEx(renderer, texture_text, IntPtr.Zero, ref dst_rect, 0, IntPtr.Zero, SDL.SDL_RendererFlip.SDL_FLIP_NONE);
-                y += s_text.h;
+                texture_text.ShowSDLError("Unable to create text texture!");
+
+
+                var dst_rect = textSurface.As<SDL.SDL_Surface>().ToSDL_Rect();
+                dst_rect.y = y;
+
+                //SDL.SDL_RenderCopyEx(renderer, texture_text, IntPtr.Zero, ref dst_rect, 0, IntPtr.Zero, SDL.SDL_RendererFlip.SDL_FLIP_NONE);
+
+                SDL.SDL_RenderCopy(renderer, texture_text, IntPtr.Zero, ref dst_rect);
+
+
+                y += dst_rect.h;
 
                 SDL.SDL_DestroyTexture(texture_text);
                 SDL.SDL_FreeSurface(textSurface);
 
             }
-            SDL.SDL_RenderPresent(renderer);
+
+
 
         }
 
+        static int RenderText(IntPtr renderer, IntPtr font, string text_line, int y, int style)
+        {
+            var textColor = new SDL.SDL_Color { a = 0, r = 100, g = 0, b = 0 };
 
+            SDL_ttf.TTF_SetFontStyle(font, style);
+            var textSurface = SDL_ttf.TTF_RenderUTF8_Blended(font, text_line, textColor);
+            textSurface.ShowSDLError("Unable to render text surface!");
+
+            var texture_text = SDL.SDL_CreateTextureFromSurface(renderer, textSurface);
+
+            var dst_rect = textSurface.As<SDL.SDL_Surface>().ToSDL_Rect();
+            dst_rect.y = y;
+            int h = dst_rect.h;
+            SDL.SDL_RenderCopy(renderer, texture_text, IntPtr.Zero, ref dst_rect);
+
+            SDL.SDL_DestroyTexture(texture_text);
+            SDL.SDL_FreeSurface(textSurface);
+            return h;
+        }
+        static void PT_Serif_Italic_Bug(IntPtr renderer)
+        {
+            int ptsize = (int)Math.Round(1.5f * 11f);
+            string filename = @"fonts/PT Serif_Italic.ttf";
+            byte[] bytes = System.IO.File.ReadAllBytes(filename);
+            int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
+            IntPtr mem = Marshal.AllocHGlobal(size);
+            Marshal.Copy(bytes, 0, mem, size);
+            IntPtr RWops = SDL.SDL_RWFromMem(mem, size);
+            RWops.ShowSDLError("SDL_RWFromMem():");
+
+            int y = 0;
+            IntPtr font_2 = SDL_ttf.TTF_OpenFontIndexRW(RWops, 0, ptsize, 0);
+            //IntPtr font_2 = SDL_ttf.TTF_OpenFontIndex(filename, ptsize, 0);
+            font_2.ShowSDLError("Failed to load font!");
+
+            y += RenderText(renderer, font_2, "й", y, 2);
+
+            IntPtr font_6 = SDL_ttf.TTF_OpenFontIndexRW(RWops, 0, ptsize, 0);
+            //IntPtr font_6 = SDL_ttf.TTF_OpenFontIndex(filename, ptsize, 0);
+            font_6.ShowSDLError("Failed to load font!");
+
+            y += RenderText(renderer, font_6, "Hello", y, 6);
+
+        }
 
 
         static void Main(string[] args)
@@ -142,26 +195,35 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             var window = SDL.SDL_CreateWindow("HtmlRenderer.SDL2-CS.Demo", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED,
                                             640, 480, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
-            if (window == IntPtr.Zero)
-                Console.WriteLine("Window could not be created! SDL_Error: {0}", SDL.SDL_GetError());
-            else
+
+            if (!window.ShowSDLError("Window could not be created!"))
                 Console.WriteLine("Window created!");
+
             var renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-            if (renderer == IntPtr.Zero)
-                Console.WriteLine("Renderer could not be created! SDL Error: {0}", SDL.SDL_GetError());
+            renderer.ShowSDLError("Renderer could not be created!");
 
+            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL.SDL_RenderClear(renderer);
 
-
-
-            bool exit = false;
 
             FontManager fm = FontManager.Instance;
             fm.RegisterFontsFromDir("fonts");
             fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
-            TestFM(renderer, "", 1.5);
 
+            //fm.RegisterFontsFromDir(@"C:\Windows\Fonts\");
+            //fm.SetDefaultsFontFamily(serif: "Segoe UI", sans_serif: "Arial", monospace: "Lucida Console");
+            var watch = System.Diagnostics.Stopwatch.StartNew();
 
+            //TestFM(renderer, "", 1.5f);
 
+            PT_Serif_Italic_Bug(renderer);
+
+            watch.Stop();
+            Console.WriteLine("Render time:{0}", watch.ElapsedMilliseconds);
+
+            SDL.SDL_RenderPresent(renderer);
+
+            bool exit = false;
             while (!exit)
             {
                 while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
