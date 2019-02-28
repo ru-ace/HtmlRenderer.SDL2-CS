@@ -214,6 +214,8 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             //fm.RegisterFontsFromDir(@"C:\Windows\Fonts\");
             //fm.SetDefaultsFontFamily(serif: "Segoe UI", sans_serif: "Arial", monospace: "Lucida Console");
+            //fm.SetDefaultsFontFamily(serif: "ms serif", sans_serif: "ms san serif", monospace: "Lucida Console");
+
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             TestFM(renderer, "", 1.5f);

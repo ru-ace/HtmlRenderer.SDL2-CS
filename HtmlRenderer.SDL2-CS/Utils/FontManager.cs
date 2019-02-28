@@ -115,9 +115,9 @@ namespace HtmlRenderer.SDL2_CS.Utils
             if (_defaultFontFamilyId == -1)
                 throw new Exception("FontFamilyName [" + serif + "] for serif not found.");
 
-            foreach (var kv in _defaultsFontFamilyId)
-                if (kv.Value == -1)
-                    _defaultsFontFamilyId[kv.Key] = _defaultFontFamilyId;
+            foreach (var familyname in _defaultsFontFamilyId.Keys.ToList())
+                if (_defaultsFontFamilyId[familyname] == -1)
+                    _defaultsFontFamilyId[familyname] = _defaultFontFamilyId;
 
         }
 
@@ -191,8 +191,14 @@ namespace HtmlRenderer.SDL2_CS.Utils
         public void RegisterFontsFromDir(string directory)
         {
             DirectoryInfo dir = new DirectoryInfo(directory);
-            FileInfo[] Files = dir.GetFiles("*.ttf");
-            foreach (FileInfo file in Files)
+            FileInfo[] ttf_files = dir.GetFiles("*.ttf");
+            foreach (FileInfo file in ttf_files)
+            {
+                Console.WriteLine(file);
+                RegisterFontFromFile(file.FullName);
+            }
+            FileInfo[] fon_files = dir.GetFiles("*.fon");
+            foreach (FileInfo file in fon_files)
             {
                 Console.WriteLine(file);
                 RegisterFontFromFile(file.FullName);
@@ -307,7 +313,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 {
                     for (int index = 1; index < fontfaces; index++)
                     {
-                        //Console.WriteLine("         index: {0}", index);
+                        Console.WriteLine("         index: {0}", index);
                         Font subfont = _fonts[font_id].Clone();
                         subfont.index = index;
                         _fonts.Add(subfont);

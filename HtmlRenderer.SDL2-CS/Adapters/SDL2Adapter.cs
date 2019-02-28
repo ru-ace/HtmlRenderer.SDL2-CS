@@ -33,7 +33,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         protected override RFont CreateFontInt(RFontFamily family, double size, RFontStyle style)
         {
-            throw new NotImplementedException();
+            return new FontAdapter(family, size, style);
         }
 
         protected override RBrush CreateLinearGradientBrush(RRect rect, RColor color1, RColor color2, double angle)

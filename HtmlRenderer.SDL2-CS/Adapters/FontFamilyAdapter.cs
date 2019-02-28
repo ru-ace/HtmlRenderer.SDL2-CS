@@ -10,8 +10,15 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
     internal sealed class FontFamilyAdapter : RFontFamily
     {
+        private string _fontfamily_name;
+        public FontFamilyAdapter(string fontfamily_name)
+        {
+            _fontfamily_name = fontfamily_name;
+        }
 
-
-        public override string Name => throw new NotImplementedException();
+        public override string Name
+        {
+            get { return _fontfamily_name; }
+        }
     }
 }
