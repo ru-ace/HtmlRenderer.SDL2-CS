@@ -14,11 +14,29 @@ namespace HtmlRenderer.SDL2_CS.Adapters
     internal sealed class SDL2Adapter : RAdapter
     {
 
-        private static readonly SDL2Adapter _instance = new SDL2Adapter();
+        IntPtr _renderer = IntPtr.Zero;
+
+        private static SDL2Adapter _instance = null;
+
+        private SDL2Adapter()
+        {
+
+        }
 
         public static SDL2Adapter Instance
         {
-            get { return _instance; }
+            get
+            {
+                if (_instance == null)
+                    _instance = new SDL2Adapter();
+                return _instance;
+            }
+        }
+
+        public IntPtr Renderer
+        {
+            set { _renderer = value; }
+            get { return _renderer; }
         }
 
         protected override RImage ConvertImageInt(object image)
@@ -28,12 +46,12 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         protected override RFont CreateFontInt(string family, double size, RFontStyle style)
         {
-            throw new NotImplementedException();
+            return new FontAdapter(family, size, style);
         }
 
         protected override RFont CreateFontInt(RFontFamily family, double size, RFontStyle style)
         {
-            return new FontAdapter(family, size, style);
+            return new FontAdapter(family.Name, size, style);
         }
 
         protected override RBrush CreateLinearGradientBrush(RRect rect, RColor color1, RColor color2, double angle)

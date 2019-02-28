@@ -24,21 +24,24 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         /// <summary>
         /// IntPtr TTF_Font
         /// </summary>
-        private IntPtr readonly _font = IntPtr.Zero;
+        private readonly IntPtr _font = IntPtr.Zero;
 
-        private double _size = -1;
+        /// <summary>
+        /// Cached size height.
+        /// </summary>
+        private readonly double _size = -1;
+
         /// <summary>
         /// Cached font height.
         /// </summary>
         private double _height = -1;
 
 
-        //private RFontStyle _style;
 
-
-        public FontAdapter(RFontFamily family, double size, RFontStyle style)
+        public FontAdapter(string family, double size, RFontStyle style)
         {
-            _font = Utils.FontManager.Instance.GetTTF_Font(family.Name, size, style);
+            _size = size;
+            _font = Utils.FontManager.Instance.GetTTF_Font(family, size, style);
         }
 
         public IntPtr Font { get { return _font; } }

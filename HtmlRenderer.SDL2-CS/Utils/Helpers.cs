@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
+using TheArtOfDev.HtmlRenderer.Adapters;
 using SDL2;
 using System.Runtime.InteropServices;
+using HtmlRenderer.SDL2_CS;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
@@ -15,9 +17,36 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             return new RRect(rect.x, rect.y, rect.w, rect.h);
         }
-        public static SDL.SDL_Rect ToSDL_Rect(this RRect rect)
+
+
+        public static SDL.SDL_Rect ToSDL(this RRect rect)
         {
             return new SDL.SDL_Rect { x = (int)rect.X, y = (int)rect.Y, w = (int)rect.Width, h = (int)rect.Height };
+        }
+
+        public static SDL.SDL_Rect UpdatedByRPoint(this SDL.SDL_Rect rect, RPoint point)
+        {
+            rect.x = (int)point.X;
+            rect.y = (int)point.Y;
+            return rect;
+        }
+        public static SDL.SDL_Rect UpdatedByRSize(this SDL.SDL_Rect rect, RSize size)
+        {
+            rect.w = (int)size.Width;
+            rect.h = (int)size.Height;
+            return rect;
+        }
+
+        public static IntPtr GetTTF_Font(this RFont font)
+        {
+            var fa = font as Adapters.FontAdapter;
+            return fa.Font;
+        }
+
+
+        public static SDL.SDL_Point ToSDL(this RPoint point)
+        {
+            return new SDL.SDL_Point { x = (int)point.X, y = (int)point.Y };
         }
 
 
@@ -25,7 +54,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             return RColor.FromArgb(color.a, color.r, color.g, color.b);
         }
-        public static SDL.SDL_Color ToSDL_Color(this RColor color)
+        public static SDL.SDL_Color ToSDL(this RColor color)
         {
             return new SDL.SDL_Color { a = color.A, r = color.R, g = color.G, b = color.B };
         }
@@ -41,8 +70,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
         public static bool ShowSDLError(this IntPtr ptr, string error_text)
         {
             if (ptr == IntPtr.Zero)
-                Console.WriteLine(error_text + " SDL_ttf Error: {0}", SDL.SDL_GetError());
+                ShowSDLError(error_text);
             return ptr == IntPtr.Zero;
+        }
+        public static void ShowSDLError(string error_text)
+        {
+            Console.WriteLine(error_text + " SDL_ttf Error: {0}", SDL.SDL_GetError());
         }
 
     }
