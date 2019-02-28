@@ -83,7 +83,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
             string[] real_style_name = { "Regular|Обычный", "Bold|Жирный", "Italic|Наклонный", "Bold+Italic|Наклонный+Жирный" };
             for (int style_id = 0; style_id <= 15; style_id++)
             {
-                if (!(style_id == 2 || style_id == 6)) continue;
+                //if (!(style_id == 2 || style_id == 6)) continue;
                 int real_style_id = style_id & 3;
                 string rs_short = real_style_name_short[real_style_id];
 
@@ -207,6 +207,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
 
             FontManager fm = FontManager.Instance;
+            fm.UseRWops = false;
             fm.RegisterFontsFromDir("fonts");
             fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
 
@@ -214,9 +215,12 @@ namespace HtmlRenderer.SDL2_CS.Demo
             //fm.SetDefaultsFontFamily(serif: "Segoe UI", sans_serif: "Arial", monospace: "Lucida Console");
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            //TestFM(renderer, "", 1.5f);
+            TestFM(renderer, "", 1.5f);
+            //TestFM(renderer, "", 0.5f);
+            //TestFM(renderer, "", 1f);
+            //TestFM(renderer, "", 2f);
 
-            PT_Serif_Italic_Bug(renderer);
+            //PT_Serif_Italic_Bug(renderer);
 
             watch.Stop();
             Console.WriteLine("Render time:{0}", watch.ElapsedMilliseconds);

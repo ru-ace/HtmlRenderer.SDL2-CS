@@ -15,7 +15,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
     {
         //Singleton 
         private static FontManager _instance = null;
-
+        public bool UseRWops = false;
         internal class Font
         {
             public Font(IntPtr RWops, IntPtr mem, string hash, string filename)
@@ -154,8 +154,13 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             int font_id = FindBestMatchFontId(fontfamily_id, style_id);
             Console.WriteLine("Font:" + font_id + " size=" + size_id + " style=" + style_id + " file=" + _fonts[font_id].filename);
-            //IntPtr font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, size_id, _fonts[font_id].index);
-            IntPtr font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, size_id, _fonts[font_id].index);
+
+            IntPtr font = IntPtr.Zero;
+            if (UseRWops)
+                font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, size_id, _fonts[font_id].index);
+            else
+                font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, size_id, _fonts[font_id].index);
+
             font.ShowSDLError("Failed to load font!");
 
             SDL_ttf.TTF_SetFontStyle(font, style_id);
@@ -218,14 +223,18 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             try
             {
-
-                int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
-                IntPtr mem = Marshal.AllocHGlobal(size);
-                Marshal.Copy(bytes, 0, mem, size);
-                IntPtr RWops = SDL.SDL_RWFromMem(mem, size);
-                //IntPtr RWops = SDL_RWFromConstMem(mem, size);
-                if (RWops == IntPtr.Zero)
-                    throw new Exception("SDL_RWFromMem error: " + SDL.SDL_GetError());
+                IntPtr RWops = IntPtr.Zero;
+                IntPtr mem = IntPtr.Zero;
+                if (UseRWops)
+                {
+                    int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
+                    mem = Marshal.AllocHGlobal(size);
+                    Marshal.Copy(bytes, 0, mem, size);
+                    RWops = SDL.SDL_RWFromMem(mem, size);
+                    //IntPtr RWops = SDL_RWFromConstMem(mem, size);
+                    if (RWops == IntPtr.Zero)
+                        throw new Exception("SDL_RWFromMem error: " + SDL.SDL_GetError());
+                }
 
                 _fonts.Add(new Font(RWops, mem, hash, filename));
                 CollectFontInfo(_fonts.Count - 1);
@@ -259,7 +268,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void CollectFontInfo(int font_id)
         {
-            IntPtr font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, 16, _fonts[font_id].index);
+            IntPtr font = IntPtr.Zero;
+            if (UseRWops)
+                font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, 16, _fonts[font_id].index);
+            else
+                font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, 16, _fonts[font_id].index);
+
             //IntPtr font = SDL_ttf.TTF_OpenFontRW(_fonts[font_id].RWops, 0, 16);
             if (font == IntPtr.Zero)
             {
@@ -291,6 +305,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 {
                     for (int index = 1; index < fontfaces; index++)
                     {
+                        //Console.WriteLine("         index: {0}", index);
                         Font subfont = _fonts[font_id].Clone();
                         subfont.index = index;
                         _fonts.Add(subfont);
@@ -314,9 +329,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public void Quit()
         {
-            for (int i = 0; i < _fonts.Count; i++)
-                if (_fonts[i].index == 0)
-                    Marshal.FreeHGlobal(_fonts[i].mem);
+            if (UseRWops)
+                for (int i = 0; i < _fonts.Count; i++)
+                    if (_fonts[i].index == 0)
+                        Marshal.FreeHGlobal(_fonts[i].mem);
 
             _fonts.Clear();
         }
