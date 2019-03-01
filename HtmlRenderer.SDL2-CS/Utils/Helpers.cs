@@ -49,7 +49,6 @@ namespace HtmlRenderer.SDL2_CS.Utils
             return new SDL.SDL_Point { x = (int)point.X, y = (int)point.Y };
         }
 
-
         public static RColor ToSDL_Color(this SDL.SDL_Color color)
         {
             return RColor.FromArgb(color.a, color.r, color.g, color.b);

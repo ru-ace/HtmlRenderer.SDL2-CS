@@ -11,18 +11,38 @@ using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
-    public sealed class FontManager
+    public sealed class FontManager : IDisposable
     {
         //Singleton 
         private static FontManager _instance = null;
         public bool UseRWops = false;
+        public bool CreateRWopsCacheOnFontRegister = false;
         public bool UseFontCache = true;
-        internal class Font
+        internal class Font : IDisposable
         {
-            public Font(IntPtr RWops, IntPtr mem, string hash, string filename)
+
+            public Font(string filename)
             {
-                this.RWops = RWops;
-                this.mem = mem;
+
+                this.filename = filename;
+                byte[] bytes = File.ReadAllBytes(filename);
+
+                using (HashAlgorithm sha = new SHA1CryptoServiceProvider())
+                {
+                    byte[] sha1_hash = sha.ComputeHash(bytes);
+                    hash = BitConverter.ToString(sha1_hash).Replace("-", string.Empty);
+                }
+
+                _RWops = IntPtr.Zero;
+                _mem = IntPtr.Zero;
+                if (Instance.UseRWops && Instance.CreateRWopsCacheOnFontRegister)
+                    CreateRWops();
+            }
+
+            private Font(IntPtr RWops, IntPtr mem, string hash, string filename)
+            {
+                this._RWops = RWops;
+                this._mem = mem;
                 this.hash = hash;
                 this.filename = filename;
 
@@ -33,18 +53,55 @@ namespace HtmlRenderer.SDL2_CS.Utils
             }
 
             public string filename = "";
-            public IntPtr RWops;
-            public IntPtr mem;
-            public int index;
-            public string hash;
+            private IntPtr _RWops = IntPtr.Zero;
+            private IntPtr _mem = IntPtr.Zero;
+            private int _mem_size = -1;
+
+            private void CreateRWops()
+            {
+                if (_mem == IntPtr.Zero)
+                {
+                    byte[] bytes = File.ReadAllBytes(filename);
+                    _mem_size = Marshal.SizeOf(bytes[0]) * bytes.Length;
+                    _mem = Marshal.AllocHGlobal(_mem_size);
+                    Marshal.Copy(bytes, 0, _mem, _mem_size);
+                }
+                _RWops = SDL.SDL_RWFromMem(_mem, _mem_size);
+                if (_RWops.ShowSDLError("FontManager.Font.RWops: SDL_RWFromMem failed!"))
+                    throw new Exception("SDL_RWFromMem error: " + SDL.SDL_GetError());
+            }
+            public IntPtr RWops
+            {
+                get
+                {
+                    //! This is Temporary solution for:
+                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4524
+                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4526
+
+                    //if (_RWops == IntPtr.Zero)
+                    CreateRWops();
+
+                    return _RWops;
+                }
+            }
+
+
+            public int index = 0;
+            public string hash = "";
 
 
             //Font description
-            public int fontFamilyId;
-            public int fontStyle;
-            public bool mono;
+            public int fontFamilyId = -1;
+            public int fontStyle = -1;
+            public bool mono = false;
 
-            public Font Clone() { return new Font(RWops, mem, hash, filename); }
+            public Font Clone() { return new Font(_RWops, _mem, hash, filename); }
+
+            public void Dispose()
+            {
+                if (_mem != IntPtr.Zero)
+                    Marshal.FreeHGlobal(_mem);
+            }
 
             public override string ToString()
             {
@@ -59,6 +116,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         private readonly List<Font> _fonts = new List<Font>();
         private readonly List<string> _fontFamily = new List<string>();
+        private readonly List<string> _fontFamilyForAdapter = new List<string>();
+
+        public string[] Families { get { return _fontFamilyForAdapter.ToArray(); } }
+
         //_fontCache[fontFamilyId][fontStyle][fontPtSize]
         private readonly Dictionary<int, Dictionary<int, Dictionary<int, IntPtr>>> _fontCache = new Dictionary<int, Dictionary<int, Dictionary<int, IntPtr>>>();
 
@@ -97,6 +158,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             foreach (var familyname in _defaultsFontFamilyId.Keys.ToList())
             {
+
                 if (GetFontFamilyId(familyname) < 0)
                 {
                     string value = "";
@@ -107,8 +169,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
                         case "monospace": value = monospace; break;
                     }
                     if (value != "")
+                    {
                         _defaultsFontFamilyId[familyname] = GetFontFamilyId(value);
-
+                        if (!_fontFamilyForAdapter.Contains(familyname)) _fontFamilyForAdapter.Add(familyname);
+                    }
                 }
             }
             _defaultFontFamilyId = GetFontFamilyId("serif");
@@ -163,10 +227,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
             else
                 font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, size_id, _fonts[font_id].index);
 
-            font.ShowSDLError("Failed to load font!");
+            if (!font.ShowSDLError("Failed to load font!"))
+            {
+                SDL_ttf.TTF_SetFontStyle(font, style_id);
+                //SDL_ttf.TTF_SetFontHinting(font, )
+            }
 
-            SDL_ttf.TTF_SetFontStyle(font, style_id);
-            //SDL_ttf.TTF_SetFontHinting(font, )
             return font;
         }
 
@@ -188,20 +254,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
             return best_font_id;
         }
 
-        public void RegisterFontsFromDir(string directory)
+        public void RegisterFontsDir(string directory)
         {
             DirectoryInfo dir = new DirectoryInfo(directory);
             FileInfo[] ttf_files = dir.GetFiles("*.ttf");
             foreach (FileInfo file in ttf_files)
             {
                 Console.WriteLine(file);
-                RegisterFontFromFile(file.FullName);
+                RegisterFontFile(file.FullName);
             }
             FileInfo[] fon_files = dir.GetFiles("*.fon");
             foreach (FileInfo file in fon_files)
             {
                 Console.WriteLine(file);
-                RegisterFontFromFile(file.FullName);
+                RegisterFontFile(file.FullName);
             }
 
             Console.WriteLine("Registered FontFamily:");
@@ -210,48 +276,17 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         }
 
-        public void RegisterFontFromFile(string filename)
+        public void RegisterFontFile(string filename)
         {
-
-            RegisterFontFromBytes(filename, File.ReadAllBytes(filename));
-        }
-
-        public void RegisterFontFromBytes(string filename, byte[] bytes)
-        {
-            string hash = "";
-            using (HashAlgorithm sha = new SHA1CryptoServiceProvider())
-            {
-                byte[] sha1_hash = sha.ComputeHash(bytes);
-                hash = BitConverter.ToString(sha1_hash).Replace("-", string.Empty);
-            }
-
+            Font font = new Font(filename);
             for (int i = 0; i < _fonts.Count; i++)
-                if (_fonts[i].hash == hash)
+                if (_fonts[i].hash == font.hash)
                     return;
 
-            try
-            {
-                IntPtr RWops = IntPtr.Zero;
-                IntPtr mem = IntPtr.Zero;
-                if (UseRWops)
-                {
-                    int size = Marshal.SizeOf(bytes[0]) * bytes.Length;
-                    mem = Marshal.AllocHGlobal(size);
-                    Marshal.Copy(bytes, 0, mem, size);
-                    RWops = SDL.SDL_RWFromMem(mem, size);
-                    //IntPtr RWops = SDL_RWFromConstMem(mem, size);
-                    if (RWops == IntPtr.Zero)
-                        throw new Exception("SDL_RWFromMem error: " + SDL.SDL_GetError());
-                }
-
-                _fonts.Add(new Font(RWops, mem, hash, filename));
-                CollectFontInfo(_fonts.Count - 1);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("RegisterFontFromBytes Exception: {0}", e.Message);
-            }
+            if (CollectFontInfo(font))
+                _fonts.Add(font);
         }
+
 
         private int GetFontFamilyId(string familyname, bool create_if_absent = false)
         {
@@ -264,6 +299,9 @@ namespace HtmlRenderer.SDL2_CS.Utils
             if (index == -1 && create_if_absent)
             {
                 _fontFamily.Add(familyname_l);
+                _fontFamilyForAdapter.Add(familyname_l);
+                if (familyname != familyname_l) _fontFamilyForAdapter.Add(familyname);
+
                 index = _fontFamily.Count - 1;
                 if (_defaultsFontFamilyId.ContainsKey(familyname_l))
                     _defaultsFontFamilyId[familyname_l] = index;
@@ -274,18 +312,17 @@ namespace HtmlRenderer.SDL2_CS.Utils
             return index;
         }
 
-        public void CollectFontInfo(int font_id)
+        private bool CollectFontInfo(Font ifont)
         {
             IntPtr font = IntPtr.Zero;
-            if (UseRWops)
-                font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, 16, _fonts[font_id].index);
+            if (UseRWops && CreateRWopsCacheOnFontRegister)
+                font = SDL_ttf.TTF_OpenFontIndexRW(ifont.RWops, 0, 16, ifont.index);
             else
-                font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, 16, _fonts[font_id].index);
+                font = SDL_ttf.TTF_OpenFontIndex(ifont.filename, 16, ifont.index);
 
-            //IntPtr font = SDL_ttf.TTF_OpenFontRW(_fonts[font_id].RWops, 0, 16);
-            if (font == IntPtr.Zero)
+            if (font.ShowSDLError("FontManager.CollectFontInfo(): Failed to load font!"))
             {
-                Console.WriteLine("Failed to load font! SDL_ttf Error: {0}", SDL.SDL_GetError());
+                return false;
             }
             else
             {
@@ -295,9 +332,9 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 bool fontface_mono = (SDL_ttf.TTF_FontFaceIsFixedWidth(font) > 0);
                 int font_style = SDL_ttf.TTF_GetFontStyle(font);
 
-                _fonts[font_id].fontFamilyId = GetFontFamilyId(fontface_familyname, true);
-                _fonts[font_id].fontStyle = font_style;
-                _fonts[font_id].mono = fontface_mono;
+                ifont.fontFamilyId = GetFontFamilyId(fontface_familyname, true);
+                ifont.fontStyle = font_style;
+                ifont.mono = fontface_mono;
 
                 /*
                 Console.WriteLine("  Hash:{0}", _fonts[font_id].hash);
@@ -309,19 +346,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 Console.WriteLine("  TTF_GetFontStyle: {0}", font_style);
                 */
 
-                if (_fonts[font_id].index == 0 && fontfaces > 1)
+                if (ifont.index == 0 && fontfaces > 1)
                 {
                     for (int index = 1; index < fontfaces; index++)
                     {
                         Console.WriteLine("         index: {0}", index);
-                        Font subfont = _fonts[font_id].Clone();
-                        subfont.index = index;
-                        _fonts.Add(subfont);
-                        CollectFontInfo(_fonts.Count - 1);
+                        Font sub_ifont = ifont.Clone();
+                        sub_ifont.index = index;
+                        if (CollectFontInfo(sub_ifont))
+                            _fonts.Add(sub_ifont);
                     }
 
                 }
                 SDL_ttf.TTF_CloseFont(font);
+                return true;
             }
         }
 
@@ -336,17 +374,27 @@ namespace HtmlRenderer.SDL2_CS.Utils
             _fontCache.Clear();
         }
 
-        public void Quit()
+        public void ClearFontRegister()
         {
             if (UseRWops)
                 for (int i = 0; i < _fonts.Count; i++)
                     if (_fonts[i].index == 0)
-                        Marshal.FreeHGlobal(_fonts[i].mem);
-
+                        _fonts[i].Dispose();
             _fonts.Clear();
+            _fontFamily.Clear();
+            _fontFamilyForAdapter.Clear();
+
+            _defaultFontFamilyId = -1;
+            foreach (var familyname in _defaultsFontFamilyId.Keys.ToList())
+                _defaultsFontFamilyId[familyname] = -1;
+
+
         }
-        /* mem refers to a void*, IntPtr to an SDL_RWops* */
-        [DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr SDL_RWFromConstMem(IntPtr mem, int size);
+        public void Dispose()
+        {
+            ClearFontCache();
+            ClearFontRegister();
+        }
+
     }
 }

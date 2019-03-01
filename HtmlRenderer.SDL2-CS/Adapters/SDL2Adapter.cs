@@ -20,7 +20,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         private SDL2Adapter()
         {
-
+            UpdateFontFamilyList();
         }
 
         public static SDL2Adapter Instance
@@ -32,6 +32,13 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                 return _instance;
             }
         }
+
+        public void UpdateFontFamilyList()
+        {
+            foreach (var fontfamily_name in Utils.FontManager.Instance.Families)
+                AddFontFamily(new FontFamilyAdapter(fontfamily_name));
+        }
+
 
         public IntPtr Renderer
         {

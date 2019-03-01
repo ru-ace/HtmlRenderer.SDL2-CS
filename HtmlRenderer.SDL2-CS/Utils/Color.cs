@@ -1,11 +1,25 @@
 ﻿using System.Collections.Generic;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
-
+//using System.Drawing; // for GenerateColorCode
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
     internal static class Color
     {
+        /*
+        static public string GenerateColorCode()
+        {
+            string code = "";
+            string format = "\"{0}\", RColor.FromArgb({1}, {2}, {3}, {4})";
+            foreach (KnownColor kc in Enum.GetValues(typeof(KnownColor)))
+            {
+                Color color = Color.FromKnownColor(kc);
+                code += "{" + String.Format(format, color.Name, color.A, color.R, color.G, color.B) + "},\n";
+            }
+            Console.WriteLine(code);
+            Console.ReadLine();            
+        }
+        */
         public static RColor FromKnownColor(string colorName)
         {
             return _knownColor.ContainsKey(colorName) ? _knownColor[colorName] : RColor.Empty;

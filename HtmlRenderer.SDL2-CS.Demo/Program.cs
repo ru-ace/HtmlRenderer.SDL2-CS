@@ -207,12 +207,13 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
 
             FontManager fm = FontManager.Instance;
-            fm.UseRWops = false;
+            fm.UseRWops = true;
+            fm.CreateRWopsCacheOnFontRegister = true;
             fm.UseFontCache = true;
-            fm.RegisterFontsFromDir("fonts");
+            fm.RegisterFontsDir("fonts");
             fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
 
-            //fm.RegisterFontsFromDir(@"C:\Windows\Fonts\");
+            //fm.RegisterFontsDir(@"C:\Windows\Fonts\");
             //fm.SetDefaultsFontFamily(serif: "Segoe UI", sans_serif: "Arial", monospace: "Lucida Console");
             //fm.SetDefaultsFontFamily(serif: "ms serif", sans_serif: "ms san serif", monospace: "Lucida Console");
 
@@ -244,8 +245,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
                 SDL.SDL_Delay(50);
             }
-            fm.ClearFontCache();
-            fm.Quit();
+            fm.Dispose();
             QuitSDL2();
 
 
