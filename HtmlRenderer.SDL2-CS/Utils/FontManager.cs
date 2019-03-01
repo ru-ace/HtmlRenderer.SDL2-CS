@@ -21,6 +21,13 @@ namespace HtmlRenderer.SDL2_CS.Utils
         internal class Font : IDisposable
         {
 
+
+            public string filename = "";
+            private IntPtr _RWops = IntPtr.Zero;
+            private IntPtr _mem = IntPtr.Zero;
+            private int _mem_size = -1;
+            private Font _parent = null;
+
             public Font(string filename)
             {
 
@@ -39,12 +46,11 @@ namespace HtmlRenderer.SDL2_CS.Utils
                     CreateRWops();
             }
 
-            private Font(IntPtr RWops, IntPtr mem, string hash, string filename)
+            private Font(Font parent)
             {
-                this._RWops = RWops;
-                this._mem = mem;
-                this.hash = hash;
-                this.filename = filename;
+                _parent = parent;
+                hash = _parent.hash;
+                filename = _parent.filename;
 
                 index = 0;
                 fontFamilyId = -1;
@@ -52,10 +58,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 mono = false;
             }
 
-            public string filename = "";
-            private IntPtr _RWops = IntPtr.Zero;
-            private IntPtr _mem = IntPtr.Zero;
-            private int _mem_size = -1;
+
 
             private void CreateRWops()
             {
@@ -78,9 +81,11 @@ namespace HtmlRenderer.SDL2_CS.Utils
                     //! https://bugzilla.libsdl.org/show_bug.cgi?id=4524
                     //! https://bugzilla.libsdl.org/show_bug.cgi?id=4526
 
+                    if (_parent != null)
+                        return _parent.RWops;
+
                     //if (_RWops == IntPtr.Zero)
                     CreateRWops();
-
                     return _RWops;
                 }
             }
@@ -95,7 +100,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
             public int fontStyle = -1;
             public bool mono = false;
 
-            public Font Clone() { return new Font(_RWops, _mem, hash, filename); }
+            public Font Clone() { return new Font(this); }
 
             public void Dispose()
             {
@@ -350,7 +355,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 {
                     for (int index = 1; index < fontfaces; index++)
                     {
-                        Console.WriteLine("         index: {0}", index);
+                        //Console.WriteLine("         index: {0}", index);
                         Font sub_ifont = ifont.Clone();
                         sub_ifont.index = index;
                         if (CollectFontInfo(sub_ifont))
@@ -378,8 +383,8 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             if (UseRWops)
                 for (int i = 0; i < _fonts.Count; i++)
-                    if (_fonts[i].index == 0)
-                        _fonts[i].Dispose();
+                    _fonts[i].Dispose();
+
             _fonts.Clear();
             _fontFamily.Clear();
             _fontFamilyForAdapter.Clear();
@@ -387,7 +392,6 @@ namespace HtmlRenderer.SDL2_CS.Utils
             _defaultFontFamilyId = -1;
             foreach (var familyname in _defaultsFontFamilyId.Keys.ToList())
                 _defaultsFontFamilyId[familyname] = -1;
-
 
         }
         public void Dispose()

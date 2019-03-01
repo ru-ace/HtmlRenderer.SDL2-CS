@@ -194,8 +194,9 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             FontManager fm = FontManager.Instance;
             fm.UseRWops = true;
-            fm.CreateRWopsCacheOnFontRegister = true;
+            fm.CreateRWopsCacheOnFontRegister = false;
             fm.UseFontCache = true;
+
             fm.RegisterFontsDir("fonts");
             fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
 
