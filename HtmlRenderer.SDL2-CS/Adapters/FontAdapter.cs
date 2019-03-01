@@ -22,7 +22,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         private double _underlineOffset = -1;
 
         /// <summary>
-        /// IntPtr TTF_Font
+        /// IntPtr of SDL_ttf.TTF_Font
         /// </summary>
         private readonly IntPtr _font = IntPtr.Zero;
 

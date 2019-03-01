@@ -37,19 +37,41 @@ namespace HtmlRenderer.SDL2_CS.Utils
             return rect;
         }
 
-        public static IntPtr GetTTF_Font(this RFont font)
+        public static IntPtr ToTTF_Font(this RFont font)
         {
-            var fa = font as Adapters.FontAdapter;
-            return fa.Font;
+            return (font as Adapters.FontAdapter).Font;
         }
 
+        internal static Adapters.PenAdapter ToPenA(this RPen pen)
+        {
+            return pen as Adapters.PenAdapter;
+        }
+
+        internal static Adapters.BrushAdapter ToBrushA(this RBrush brush)
+        {
+            return brush as Adapters.BrushAdapter;
+        }
+        internal static Adapters.GraphicsPathAdapter ToPathA(this RGraphicsPath path)
+        {
+            return path as Adapters.GraphicsPathAdapter;
+        }
 
         public static SDL.SDL_Point ToSDL(this RPoint point)
         {
             return new SDL.SDL_Point { x = (int)point.X, y = (int)point.Y };
         }
 
-        public static RColor ToSDL_Color(this SDL.SDL_Color color)
+        public static void SetToSDLRenderer(this SDL.SDL_Color color)
+        {
+            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.Renderer, color.r, color.g, color.b, color.a);
+        }
+
+        public static void SetToSDLRenderer(this RColor color)
+        {
+            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.Renderer, color.R, color.G, color.B, color.A);
+        }
+
+        public static RColor ToRColor(this SDL.SDL_Color color)
         {
             return RColor.FromArgb(color.a, color.r, color.g, color.b);
         }

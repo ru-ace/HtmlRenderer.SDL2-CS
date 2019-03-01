@@ -3,27 +3,13 @@ using SDL2;
 using HtmlRenderer.SDL2_CS.Utils;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using System.Runtime.InteropServices;
-
 using System.Collections.Generic;
-//using System.Drawing; // for GenerateColorCode
+
 namespace HtmlRenderer.SDL2_CS.Demo
 {
     class Program
     {
-        /*
-        static string GenerateColorCode()
-        {
-            string code = "";
-            string format = "\"{0}\", RColor.FromArgb({1}, {2}, {3}, {4})";
-            foreach (KnownColor kc in Enum.GetValues(typeof(KnownColor)))
-            {
-                Color color = Color.FromKnownColor(kc);
-                code += "{" + String.Format(format, color.Name, color.A, color.R, color.G, color.B) + "},\n";
-            }
-            Console.WriteLine(code);
-            Console.ReadLine();            
-        }
-        */
+
         private static void InitSDL2()
         {
             if (SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING) < 0)

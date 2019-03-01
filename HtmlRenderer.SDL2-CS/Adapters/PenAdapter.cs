@@ -10,7 +10,16 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class PenAdapter : RPen
     {
-        public override double Width { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public override RDashStyle DashStyle { set => throw new NotImplementedException(); }
+        internal RColor color = RColor.FromArgb(255, 0, 0, 0);
+        internal double width = 1;
+        internal RDashStyle dashStyle = RDashStyle.Solid;
+
+        public PenAdapter(RColor color)
+        {
+            this.color = color;
+        }
+
+        public override double Width { get { return width; } set { width = value; } }
+        public override RDashStyle DashStyle { set { dashStyle = value; } }
     }
 }

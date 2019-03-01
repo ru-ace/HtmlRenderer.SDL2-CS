@@ -14,7 +14,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
     internal sealed class SDL2Adapter : RAdapter
     {
 
-        IntPtr _renderer = IntPtr.Zero;
+        private IntPtr _renderer = IntPtr.Zero;
 
         private static SDL2Adapter _instance = null;
 
@@ -46,10 +46,6 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             get { return _renderer; }
         }
 
-        protected override RImage ConvertImageInt(object image)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override RFont CreateFontInt(string family, double size, RFontStyle style)
         {
@@ -61,19 +57,15 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             return new FontAdapter(family.Name, size, style);
         }
 
-        protected override RBrush CreateLinearGradientBrush(RRect rect, RColor color1, RColor color2, double angle)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override RPen CreatePen(RColor color)
         {
-            throw new NotImplementedException();
+            return new PenAdapter(color);
         }
 
         protected override RBrush CreateSolidBrush(RColor color)
         {
-            throw new NotImplementedException();
+            return new BrushAdapter(color);
         }
 
         protected override RColor GetColorInt(string colorName)
@@ -81,9 +73,20 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             return Utils.Color.FromKnownColor(colorName);
         }
 
+
         protected override RImage ImageFromStreamInt(Stream memoryStream)
         {
             throw new NotImplementedException();
         }
+        protected override RImage ConvertImageInt(object image)
+        {
+            throw new NotImplementedException();
+        }
+        protected override RBrush CreateLinearGradientBrush(RRect rect, RColor color1, RColor color2, double angle)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }
