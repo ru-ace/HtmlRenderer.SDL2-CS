@@ -19,7 +19,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

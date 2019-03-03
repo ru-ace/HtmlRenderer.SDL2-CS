@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlRenderer, Version=1.5.0.6, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlRenderer.Core.1.5.0.6\lib\net45\HtmlRenderer.dll</HintPath>
+    <Reference Include="HtmlRenderer">
+      <HintPath>..\HtmlRenderer\HtmlRenderer.dll</HintPath>
     </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\HtmlRenderer.SDL2-CS.Demo\libs\SDL2-CS\SDL2-CS.dll</HintPath>
@@ -41,6 +41,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\ControlAdapter.cs" />
     <Compile Include="Adapters\SDL2Adapter.cs" />
     <Compile Include="Adapters\BrushAdapter.cs" />
     <Compile Include="Adapters\FontAdapter.cs" />

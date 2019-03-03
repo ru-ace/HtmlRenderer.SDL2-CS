@@ -77,12 +77,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
             {
                 get
                 {
-                    //! This is Temporary solution for:
-                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4524
-                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4526
-
                     if (_parent != null)
                         return _parent.RWops;
+
+                    //! About this solution and commented "if" statement:
+                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4524
+                    //! https://bugzilla.libsdl.org/show_bug.cgi?id=4526
 
                     //if (_RWops == IntPtr.Zero)
                     CreateRWops();
@@ -228,7 +228,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             IntPtr font = IntPtr.Zero;
             if (UseRWops)
-                font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 0, size_id, _fonts[font_id].index);
+                font = SDL_ttf.TTF_OpenFontIndexRW(_fonts[font_id].RWops, 1, size_id, _fonts[font_id].index);
             else
                 font = SDL_ttf.TTF_OpenFontIndex(_fonts[font_id].filename, size_id, _fonts[font_id].index);
 
@@ -321,7 +321,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             IntPtr font = IntPtr.Zero;
             if (UseRWops && CreateRWopsCacheOnFontRegister)
-                font = SDL_ttf.TTF_OpenFontIndexRW(ifont.RWops, 0, 16, ifont.index);
+                font = SDL_ttf.TTF_OpenFontIndexRW(ifont.RWops, 1, 16, ifont.index);
             else
                 font = SDL_ttf.TTF_OpenFontIndex(ifont.filename, 16, ifont.index);
 

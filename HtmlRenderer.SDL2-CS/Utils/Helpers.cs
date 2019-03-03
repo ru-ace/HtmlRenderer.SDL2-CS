@@ -94,6 +94,28 @@ namespace HtmlRenderer.SDL2_CS.Utils
                 ShowSDLError(error_text);
             return ptr == IntPtr.Zero;
         }
+        public static RPoint ToRPoint(this SDL.SDL_MouseButtonEvent e)
+        {
+            return new RPoint(e.x, e.y);
+        }
+        public static RPoint ToRPoint(this SDL.SDL_MouseMotionEvent e)
+        {
+            return new RPoint(e.x, e.y);
+        }
+        public static RMouseEvent ToRMouseEvent(this SDL.SDL_MouseButtonEvent e)
+        {
+            return new RMouseEvent((e.button & SDL.SDL_BUTTON_LEFT) != 0);
+        }
+
+        public static RKeyEvent ToRKeyEvent(this SDL.SDL_KeyboardEvent e)
+        {
+            return new RKeyEvent((e.keysym.mod & SDL.SDL_Keymod.KMOD_CTRL) != 0, e.keysym.sym == SDL.SDL_Keycode.SDLK_a, e.keysym.sym == SDL.SDL_Keycode.SDLK_c);
+        }
+        public static RSize ToRSize(this RRect rect)
+        {
+            return new RSize(rect.Width - rect.X, rect.Height - rect.Y);
+        }
+
         public static void ShowSDLError(string error_text)
         {
             Console.WriteLine(error_text + " SDL_ttf Error: {0}", SDL.SDL_GetError());

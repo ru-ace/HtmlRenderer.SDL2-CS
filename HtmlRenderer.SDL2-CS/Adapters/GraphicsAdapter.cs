@@ -24,7 +24,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public override void DrawImage(RImage image, RRect destRect, RRect srcRect)
@@ -63,7 +63,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RBrush brush, RGraphicsPath path)
         {
-            //TODO Use brush and realize arc 
+            //TODO Use brush and draw arc 
             brush.ToBrushA().color.SetToSDLRenderer();
 
             SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[path.ToPathA().pathItems.Count];
@@ -93,7 +93,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             pen.ToPenA().color.SetToSDLRenderer();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
             if (SDL.SDL_RenderDrawRect(_renderer, ref rect) < 0)
-                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderCopy!");
+                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderDrawRect!");
         }
 
         public override void DrawRectangle(RBrush brush, double x, double y, double width, double height)
@@ -101,8 +101,8 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             //TODO Use brush 
             brush.ToBrushA().color.SetToSDLRenderer();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
-            if (SDL.SDL_RenderDrawRect(_renderer, ref rect) < 0)
-                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderCopy!");
+            if (SDL.SDL_RenderFillRect(_renderer, ref rect) < 0)
+                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderFillRect!");
         }
 
 
@@ -152,26 +152,32 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         }
 
-        public override RBrush GetTextureBrush(RImage image, RRect dstRect, RPoint translateTransformLocation)
-        {
-            throw new NotImplementedException();
-        }
+
+
+        // int SDL_RenderSetClipRect(SDL_Renderer*   renderer, const SDL_Rect* rect)
+        // SDL_RenderGetClipRect(SDL_Renderer* renderer, SDL_Rect* rect)
+        // SDL_bool SDL_RenderIsClipEnabled(SDL_Renderer* renderer)
 
         public override void PopClip()
         {
-            throw new NotImplementedException();
+            _clipStack.Pop();
+            var sdl_rect = _clipStack.Peek().ToSDL();
+            SDL.SDL_RenderSetClipRect(_renderer, ref sdl_rect);
         }
 
         public override void PushClip(RRect rect)
         {
-            throw new NotImplementedException();
+            _clipStack.Push(rect);
+            var sdl_rect = rect.ToSDL();
+            SDL.SDL_RenderSetClipRect(_renderer, ref sdl_rect);
+
         }
 
-        public override void PushClipExclude(RRect rect)
+
+        public override RBrush GetTextureBrush(RImage image, RRect dstRect, RPoint translateTransformLocation)
         {
             throw new NotImplementedException();
         }
-
 
         // TODO low priority 
 
@@ -193,12 +199,17 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         public override void ReturnPreviousSmoothingMode(object prevMode)
         {
             //there is no need for it
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public override object SetAntiAliasSmoothingMode()
         {
             //there is no need for it
+            throw new NotImplementedException();
+        }
+        public override void PushClipExclude(RRect rect)
+        {   // pdfSharp is not implement this
+            // Seem not used 
             throw new NotImplementedException();
         }
     }

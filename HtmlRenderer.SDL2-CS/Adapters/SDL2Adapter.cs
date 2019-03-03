@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
+using HtmlRenderer.SDL2_CS.Utils;
 
 
 namespace HtmlRenderer.SDL2_CS.Adapters
@@ -31,6 +32,25 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                     _instance = new SDL2Adapter();
                 return _instance;
             }
+        }
+
+        public RRect GetRendererRect()
+        {
+
+            if (SDL.SDL_RenderIsClipEnabled(_renderer) == SDL.SDL_bool.SDL_TRUE)
+            {
+
+                SDL.SDL_RenderGetClipRect(_renderer, out SDL.SDL_Rect rect);
+                return rect.ToRRect();
+            }
+            else
+            {
+                SDL.SDL_GetRendererOutputSize(_renderer, out int width, out int height);
+                return new RRect(0, 0, (double)width, (double)height);
+            }
+
+            // SDL_RenderGetClipRect(SDL_Renderer* renderer, SDL_Rect* rect)
+            // SDL_bool SDL_RenderIsClipEnabled(SDL_Renderer* renderer)
         }
 
         public void UpdateFontFamilyList()

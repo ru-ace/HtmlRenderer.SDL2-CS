@@ -56,7 +56,8 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             {
                 if (_height < 0 && _font != IntPtr.Zero)
                     _height = (double)SDL_ttf.TTF_FontLineSkip(_font);
-                return Height;
+
+                return _height;
             }
         }
 
