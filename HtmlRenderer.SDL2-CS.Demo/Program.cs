@@ -207,7 +207,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             var hc = new HtmlContainer(renderer);
-            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:620px;\"><center>";
+            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:100%;\"><center>";
             html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!";
             html += "</center></div></body></html>";
             hc.SetHtml(html);
@@ -239,7 +239,12 @@ namespace HtmlRenderer.SDL2_CS.Demo
                     if (e.type == SDL.SDL_EventType.SDL_QUIT)
                         exit = true;
                 }
-
+                //hc.PerformLayout();
+                SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL.SDL_RenderClear(renderer);
+                //hc.PerformLayout();
+                hc.PerformPaint();
+                SDL.SDL_RenderPresent(renderer);
                 SDL.SDL_Delay(50);
             }
             fm.Dispose();
