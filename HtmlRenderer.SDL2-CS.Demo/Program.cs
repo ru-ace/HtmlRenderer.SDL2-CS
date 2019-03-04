@@ -207,9 +207,10 @@ namespace HtmlRenderer.SDL2_CS.Demo
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             var hc = new HtmlContainer(renderer);
-            string html = "<html><body><span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!</body></html>";
+            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:620px;\"><center>";
+            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!";
+            html += "</center></div></body></html>";
             hc.SetHtml(html);
-            Console.WriteLine(hc.CssData.ToString());
             hc.PerformLayout();
             hc.PerformPaint();
 

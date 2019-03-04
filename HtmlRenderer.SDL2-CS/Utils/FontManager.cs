@@ -198,7 +198,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
             int fontfamily_id = GetFontFamilyId(familyname);
             int style_id = (int)style;
-            int size_id = (int)Math.Round(_defaultFontSize * size);
+            int size_id = (int)size;// Math.Round(_defaultFontSize * size);
             if (!UseFontCache)
                 return OpenTTF_Font(fontfamily_id, size_id, style_id);
 
