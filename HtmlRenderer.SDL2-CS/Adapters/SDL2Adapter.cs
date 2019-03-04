@@ -8,11 +8,11 @@ using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
 using HtmlRenderer.SDL2_CS.Utils;
-
+using System.Runtime.InteropServices;
 
 namespace HtmlRenderer.SDL2_CS.Adapters
 {
-    internal sealed class SDL2Adapter : RAdapter
+    public sealed class SDL2Adapter : RAdapter
     {
 
         private IntPtr _renderer = IntPtr.Zero;
@@ -34,10 +34,12 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             }
         }
 
-        public RRect GetRendererRect()
+
+
+        public RRect GetRendererRect(bool window = true)
         {
 
-            if (SDL.SDL_RenderIsClipEnabled(_renderer) == SDL.SDL_bool.SDL_TRUE)
+            if (SDL.SDL_RenderIsClipEnabled(_renderer) == SDL.SDL_bool.SDL_TRUE && !window)
             {
 
                 SDL.SDL_RenderGetClipRect(_renderer, out SDL.SDL_Rect rect);
@@ -92,18 +94,21 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         {
             return Utils.Color.FromKnownColor(colorName);
         }
+        protected override RImage ConvertImageInt(object image)
+        {
+            return new ImageAdapter(image);
+        }
+
 
 
         protected override RImage ImageFromStreamInt(Stream memoryStream)
         {
-            throw new NotImplementedException();
-        }
-        protected override RImage ConvertImageInt(object image)
-        {
+            Console.WriteLine("ImageFromStreamInt(): NotImplemented");
             throw new NotImplementedException();
         }
         protected override RBrush CreateLinearGradientBrush(RRect rect, RColor color1, RColor color2, double angle)
         {
+            Console.WriteLine("CreateLinearGradientBrush(): NotImplemented");
             throw new NotImplementedException();
         }
 

@@ -55,6 +55,10 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
             return path as Adapters.GraphicsPathAdapter;
         }
+        internal static Adapters.ImageAdapter ToImageA(this RImage image)
+        {
+            return image as Adapters.ImageAdapter;
+        }
 
         public static SDL.SDL_Point ToSDL(this RPoint point)
         {

@@ -224,7 +224,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
         private IntPtr OpenTTF_Font(int fontfamily_id, int size_id, int style_id)
         {
             int font_id = FindBestMatchFontId(fontfamily_id, style_id);
-            Console.WriteLine("Font:" + font_id + " size=" + size_id + " style=" + style_id + " file=" + _fonts[font_id].filename);
+            //Console.WriteLine("Font:" + font_id + " size=" + size_id + " style=" + style_id + " file=" + _fonts[font_id].filename);
 
             IntPtr font = IntPtr.Zero;
             if (UseRWops)
@@ -265,13 +265,13 @@ namespace HtmlRenderer.SDL2_CS.Utils
             FileInfo[] ttf_files = dir.GetFiles("*.ttf");
             foreach (FileInfo file in ttf_files)
             {
-                Console.WriteLine(file);
+                //Console.WriteLine(file);
                 RegisterFontFile(file.FullName);
             }
             FileInfo[] fon_files = dir.GetFiles("*.fon");
             foreach (FileInfo file in fon_files)
             {
-                Console.WriteLine(file);
+                //Console.WriteLine(file);
                 RegisterFontFile(file.FullName);
             }
 

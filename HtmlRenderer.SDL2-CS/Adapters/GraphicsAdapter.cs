@@ -29,13 +29,14 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawImage(RImage image, RRect destRect, RRect srcRect)
         {
-            throw new NotImplementedException();
+            image.ToImageA().Draw(_renderer, destRect, srcRect);
         }
 
         public override void DrawImage(RImage image, RRect destRect)
         {
-            throw new NotImplementedException();
+            image.ToImageA().Draw(_renderer, destRect);
         }
+
 
         public override void DrawLine(RPen pen, double x1, double y1, double x2, double y2)
         {
@@ -176,6 +177,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override RBrush GetTextureBrush(RImage image, RRect dstRect, RPoint translateTransformLocation)
         {
+            Console.WriteLine("Graphics.GetTextureBrush(): NotImplemented");
             throw new NotImplementedException();
         }
 
@@ -194,22 +196,26 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         public override void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth)
         {
             //TODO low priority (there is no need for it - used for text selection)       
+            Console.WriteLine("Graphics.MeasureString(): NotImplemented");
             throw new NotSupportedException();
         }
         public override void ReturnPreviousSmoothingMode(object prevMode)
         {
+            //Console.WriteLine("Graphics.ReturnPreviousSmoothingMode(): NotImplemented");
             //there is no need for it
             //throw new NotImplementedException();
         }
 
         public override object SetAntiAliasSmoothingMode()
         {
+            Console.WriteLine("Graphics.SetAntiAliasSmoothingMode(): NotImplemented");
             //there is no need for it
             throw new NotImplementedException();
         }
         public override void PushClipExclude(RRect rect)
         {   // pdfSharp is not implement this
             // Seem not used 
+            Console.WriteLine("Graphics.PushClipExclude(): NotImplemented");
             throw new NotImplementedException();
         }
     }

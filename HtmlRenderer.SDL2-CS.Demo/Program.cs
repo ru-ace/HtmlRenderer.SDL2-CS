@@ -1,7 +1,9 @@
 ﻿using System;
 using SDL2;
 using HtmlRenderer.SDL2_CS.Utils;
+using HtmlRenderer.SDL2_CS.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
+using TheArtOfDev.HtmlRenderer.Core;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
@@ -208,11 +210,19 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             var hc = new HtmlContainer(renderer);
             string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:100%;\"><center>";
-            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!";
-            html += "</center></div></body></html>";
-            hc.SetHtml(html);
+            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
+            html += "</center></div>";
+            html += "<img src=\"bkg.jpg\"/><img src=\"transparent.png\"/>";
+            html += "</body></html>";
+            var rect = hc.adapter.GetRendererRect().ToRSize();
+            //string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
+            //css += "img {width:50%;}";
+
+            var css_data = CssData.Parse(hc.adapter, "", false);
+
+            hc.SetHtml(html, css_data);
             hc.PerformLayout();
-            hc.PerformPaint();
+
 
 
 
@@ -239,15 +249,25 @@ namespace HtmlRenderer.SDL2_CS.Demo
                     if (e.type == SDL.SDL_EventType.SDL_QUIT)
                         exit = true;
                 }
-                //hc.PerformLayout();
+                //
                 SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                 SDL.SDL_RenderClear(renderer);
+                /*
                 //hc.PerformLayout();
+                var rect = hc.adapter.GetRendererRect().ToRSize();
+                hc.ht.PageSize
+                string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
+                Console.WriteLine(css);
+                var css_data = CssData.Parse(hc.adapter, css);
+                hc.SetHtml(html, css_data);
+                hc.PerformLayout();
+                */
                 hc.PerformPaint();
                 SDL.SDL_RenderPresent(renderer);
                 SDL.SDL_Delay(50);
             }
             fm.Dispose();
+            ResourceManager.Quit();
             QuitSDL2();
 
 

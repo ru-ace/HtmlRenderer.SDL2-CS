@@ -34,7 +34,11 @@ namespace HtmlRenderer.SDL2_CS
             _htmlContainerInt = new HtmlContainerInt(sdl2a);
             _htmlContainerInt.SetMargins(0);
             _htmlContainerInt.PageSize = sdl2a.GetRendererRect().ToRSize();
+            ImageLoad += ResourceManager.OnImageLoad;
+
         }
+
+        public SDL2Adapter adapter { get { return SDL2Adapter.Instance; } }
 
         /// <summary>
         /// Raised when the set html document has been fully loaded.<br/>
