@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlRenderer">
-      <HintPath>..\HtmlRenderer\HtmlRenderer.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="SDL2-CS">
@@ -361,6 +358,10 @@
     <Compile Include="libs\SDL2-CS\SDL2_CS_libs_bundle.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HTML-Renderer\Source\HtmlRenderer\HtmlRenderer.csproj">
+      <Project>{fe611685-391f-4e3e-b27e-d3150e51e49b}</Project>
+      <Name>HtmlRenderer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HtmlRenderer.SDL2-CS\HtmlRenderer.SDL2-CS.csproj">
       <Project>{6e566626-7499-4736-b00d-8928d56a7e8f}</Project>
       <Name>HtmlRenderer.SDL2-CS</Name>

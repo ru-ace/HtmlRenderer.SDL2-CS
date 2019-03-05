@@ -1,3 +1,6 @@
 [submodule "HtmlRenderer.SDL2-CS.Demo/libs"]
 	path = HtmlRenderer.SDL2-CS.Demo/libs
 	url = https://github.com/ru-ace/SDL2-CS-libs-bundle.git
+[submodule "HTML-Renderer"]
+	path = HTML-Renderer
+	url = git@github.com:ru-ace/HTML-Renderer.git

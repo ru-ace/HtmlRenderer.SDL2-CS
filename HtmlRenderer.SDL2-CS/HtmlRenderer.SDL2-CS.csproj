@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlRenderer">
-      <HintPath>..\HtmlRenderer\HtmlRenderer.dll</HintPath>
-    </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\HtmlRenderer.SDL2-CS.Demo\libs\SDL2-CS\SDL2-CS.dll</HintPath>
     </Reference>
@@ -60,6 +57,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HTML-Renderer\Source\HtmlRenderer\HtmlRenderer.csproj">
+      <Project>{fe611685-391f-4e3e-b27e-d3150e51e49b}</Project>
+      <Name>HtmlRenderer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
