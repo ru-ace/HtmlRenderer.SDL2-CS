@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceRoot}/HtmlRenderer.SDL2-CS.Demo/bin/Debug/HtmlRenderer.SDL2-CS.Demo.exe",
             "cwd": "${workspaceRoot}/HtmlRenderer.SDL2-CS.Demo/bin/Debug/",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
         },
         {
             "name": "Attach",

@@ -77,27 +77,18 @@ namespace HtmlRenderer.SDL2_CS.Demo
                 fm_font_directory: "fonts", fm_serif: "PT Serif", fm_sans_serif: "PT Sans", fm_monospace: "PT Mono");
             //fm_font_directory: @"C:\Windows\Fonts\", fm_serif: "Segoe UI", fm_sans_serif: "Arial", fm_monospace: "Lucida Console");
 
+            string html_text = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
+            string html_tables = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
 
-
-            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:100%;\"><center>";
-            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
+            string html = "<html><body style=\"font-size:16pt;margin:0px;\"><div style=\"background-color: #efe;background-image: url(transparent.png);width:100%;\"><center>";
+            html += "<span style=\"background-color: #eef;text-decoration: underline;\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
             html += "</center></div>";
-            html += "<img src=\"bkg.jpg\"/><img src=\"transparent.png\"/>";
+            html += "<img src=\"bkg.jpg\" style=\"width:100%;opacity: 0.5;\"/><img src=\"transparent.png\"/>";
             html += "</body></html>";
-            var rect = hc.adapter.GetRendererRect().ToRSize();
-            string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
-            //css += "img {width:50%;}";
 
-            var css_data = CssData.Parse(hc.adapter, css, true);
-            //var watch = System.Diagnostics.Stopwatch.StartNew();
-
-            hc.SetHtml(html, css_data);
-            hc.PerformLayout();
-
-            //watch.Stop();
-            //Console.WriteLine("Render time:{0}", watch.ElapsedMilliseconds);
-
-            SDL.SDL_RenderPresent(renderer);
+            hc.SetHtml(html);
+            //hc.SetHtml(html_text);
+            //hc.SetHtml(html_tables);
 
             bool exit = false;
             while (!exit)
@@ -110,16 +101,8 @@ namespace HtmlRenderer.SDL2_CS.Demo
                 //
                 SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                 SDL.SDL_RenderClear(renderer);
-                /*
-                //hc.PerformLayout();
-                var rect = hc.adapter.GetRendererRect().ToRSize();
-                hc.ht.PageSize
-                string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
-                Console.WriteLine(css);
-                var css_data = CssData.Parse(hc.adapter, css);
-                hc.SetHtml(html, css_data);
+                hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
                 hc.PerformLayout();
-                */
                 hc.PerformPaint();
                 SDL.SDL_RenderPresent(renderer);
                 SDL.SDL_Delay(50);

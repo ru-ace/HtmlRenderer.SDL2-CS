@@ -55,7 +55,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             get
             {
                 if (_height < 0 && _font != IntPtr.Zero)
-                    _height = (double)SDL_ttf.TTF_FontLineSkip(_font);
+                    _height = (double)SDL_ttf.TTF_FontLineSkip(_font) + 1;
 
                 return _height;
             }
@@ -66,7 +66,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             get
             {
                 if (_underlineOffset < 0 && _font != IntPtr.Zero)
-                    _underlineOffset = Height - (double)SDL_ttf.TTF_FontDescent(_font);
+                    _underlineOffset = Height + (double)SDL_ttf.TTF_FontDescent(_font);
                 return _underlineOffset;
             }
         }

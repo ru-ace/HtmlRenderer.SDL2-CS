@@ -12,6 +12,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
     internal sealed class BrushAdapter : RBrush
     {
         internal RColor color = RColor.FromArgb(255, 0, 0, 0);
+
         public BrushAdapter(RColor color)
         {
             this.color = color;

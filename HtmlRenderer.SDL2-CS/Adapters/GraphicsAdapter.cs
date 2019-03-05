@@ -94,16 +94,17 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             pen.ToPenA().color.SetToSDLRenderer();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
             if (SDL.SDL_RenderDrawRect(_renderer, ref rect) < 0)
-                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderDrawRect!");
+                Helpers.ShowSDLError("Graphics.DrawRectangle:Unable to SDL_RenderDrawRect!");
         }
 
         public override void DrawRectangle(RBrush brush, double x, double y, double width, double height)
         {
             //TODO Use brush 
+            //Console.WriteLine("Graphics.DrawRectangle x:{0} y:{1} w:{2} h:{3}", x, y, width, height);
             brush.ToBrushA().color.SetToSDLRenderer();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
             if (SDL.SDL_RenderFillRect(_renderer, ref rect) < 0)
-                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderFillRect!");
+                Helpers.ShowSDLError("Graphics.DrawRectangle:Unable to SDL_RenderFillRect!");
         }
 
 
@@ -177,8 +178,8 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override RBrush GetTextureBrush(RImage image, RRect dstRect, RPoint translateTransformLocation)
         {
-            Console.WriteLine("Graphics.GetTextureBrush(): NotImplemented");
-            throw new NotImplementedException();
+            //Console.WriteLine("Graphics.GetTextureBrush()");
+            return new BrushAdapter(RColor.FromArgb(255, 255, 0, 0));
         }
 
         // TODO low priority 

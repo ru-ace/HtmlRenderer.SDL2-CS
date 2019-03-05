@@ -51,7 +51,7 @@ namespace HtmlRenderer.SDL2_CS
             sdl2a.Renderer = renderer;
             _htmlContainerInt = new HtmlContainerInt(sdl2a);
             _htmlContainerInt.SetMargins(0);
-            _htmlContainerInt.PageSize = sdl2a.GetRendererRect().ToRSize();
+            _htmlContainerInt.PageSize = new RSize(9999, 9999);
             ImageLoad += ResourceManager.OnImageLoad;
 
         }
