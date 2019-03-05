@@ -27,8 +27,26 @@ namespace HtmlRenderer.SDL2_CS
         /// <summary>
         /// Init.
         /// </summary>
-        public HtmlContainer(IntPtr renderer)
+        /// <param name="renderer">SDL_Renderer</param>
+        /// <param name="fm_font_directory">Directory with fonts files</param>
+        /// <param name="fm_serif">Fontfamily for serif</param>
+        /// <param name="fm_sans_serif">Fontfamily for sans-serif</param>
+        /// <param name="fm_monospace">Fontfamily for monospace </param>
+        /// <param name="fm_UseFontCache"></param>
+        /// <param name="fm_UseRWops"></param>
+        /// <param name="fm_CreateRWopsCacheOnFontRegister"></param>
+        public HtmlContainer(IntPtr renderer,
+                            string fm_font_directory, string fm_serif, string fm_sans_serif = "", string fm_monospace = "",
+                            bool fm_UseFontCache = true, bool fm_UseRWops = true, bool fm_CreateRWopsCacheOnFontRegister = false)
         {
+
+            FontManager fm = FontManager.Instance;
+            fm.UseFontCache = fm_UseFontCache;
+            fm.UseRWops = fm_UseRWops;
+            fm.CreateRWopsCacheOnFontRegister = fm_CreateRWopsCacheOnFontRegister;
+            fm.RegisterFontsDir(fm_font_directory);
+            fm.SetDefaultsFontFamily(serif: fm_serif, sans_serif: fm_sans_serif, monospace: fm_monospace);
+
             var sdl2a = SDL2Adapter.Instance;
             sdl2a.Renderer = renderer;
             _htmlContainerInt = new HtmlContainerInt(sdl2a);
@@ -424,6 +442,8 @@ namespace HtmlRenderer.SDL2_CS
 
         public void Dispose()
         {
+            FontManager.Instance.Dispose();
+            ResourceManager.Quit();
             _htmlContainerInt.Dispose();
         }
 

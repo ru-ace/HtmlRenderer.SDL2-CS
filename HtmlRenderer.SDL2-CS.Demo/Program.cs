@@ -54,6 +54,87 @@ namespace HtmlRenderer.SDL2_CS.Demo
             SDL.SDL_Quit();
         }
 
+        static void Main(string[] args)
+        {
+
+            SDL2.SDL2_CS_libs_bundle.Init();
+            InitSDL2();
+
+            var window = SDL.SDL_CreateWindow("HtmlRenderer.SDL2-CS.Demo", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED,
+                                            640, 480, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+
+            if (!window.ShowSDLError("Window could not be created!"))
+                Console.WriteLine("Window created!");
+
+            var renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+            renderer.ShowSDLError("Renderer could not be created!");
+
+            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL.SDL_RenderClear(renderer);
+
+
+            var hc = new HtmlContainer(renderer,
+                fm_font_directory: "fonts", fm_serif: "PT Serif", fm_sans_serif: "PT Sans", fm_monospace: "PT Mono");
+            //fm_font_directory: @"C:\Windows\Fonts\", fm_serif: "Segoe UI", fm_sans_serif: "Arial", fm_monospace: "Lucida Console");
+
+
+
+            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:100%;\"><center>";
+            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
+            html += "</center></div>";
+            html += "<img src=\"bkg.jpg\"/><img src=\"transparent.png\"/>";
+            html += "</body></html>";
+            var rect = hc.adapter.GetRendererRect().ToRSize();
+            string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
+            //css += "img {width:50%;}";
+
+            var css_data = CssData.Parse(hc.adapter, css, true);
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+
+            hc.SetHtml(html, css_data);
+            hc.PerformLayout();
+
+            //watch.Stop();
+            //Console.WriteLine("Render time:{0}", watch.ElapsedMilliseconds);
+
+            SDL.SDL_RenderPresent(renderer);
+
+            bool exit = false;
+            while (!exit)
+            {
+                while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
+                {
+                    if (e.type == SDL.SDL_EventType.SDL_QUIT)
+                        exit = true;
+                }
+                //
+                SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL.SDL_RenderClear(renderer);
+                /*
+                //hc.PerformLayout();
+                var rect = hc.adapter.GetRendererRect().ToRSize();
+                hc.ht.PageSize
+                string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
+                Console.WriteLine(css);
+                var css_data = CssData.Parse(hc.adapter, css);
+                hc.SetHtml(html, css_data);
+                hc.PerformLayout();
+                */
+                hc.PerformPaint();
+                SDL.SDL_RenderPresent(renderer);
+                SDL.SDL_Delay(50);
+            }
+
+
+            hc.Dispose();
+            QuitSDL2();
+
+
+        }
+
+
+        #region Testing Code
+        /* 
         private static void TestFM(IntPtr renderer, string font_familyname, double font_size_em)
         {
 
@@ -173,104 +254,9 @@ namespace HtmlRenderer.SDL2_CS.Demo
             y += RenderText(renderer, font_6, "Hello", y, 6);
 
         }
+        */
+        #endregion
 
 
-        static void Main(string[] args)
-        {
-
-            SDL2.SDL2_CS_libs_bundle.Init();
-            InitSDL2();
-
-            var window = SDL.SDL_CreateWindow("HtmlRenderer.SDL2-CS.Demo", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED,
-                                            640, 480, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
-
-            if (!window.ShowSDLError("Window could not be created!"))
-                Console.WriteLine("Window created!");
-
-            var renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-            renderer.ShowSDLError("Renderer could not be created!");
-
-            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL.SDL_RenderClear(renderer);
-
-
-            FontManager fm = FontManager.Instance;
-            fm.UseRWops = true;
-            fm.CreateRWopsCacheOnFontRegister = false;
-            fm.UseFontCache = true;
-
-            fm.RegisterFontsDir("fonts");
-            fm.SetDefaultsFontFamily(serif: "PT Serif", sans_serif: "PT Sans", monospace: "PT Mono");
-
-            //fm.RegisterFontsDir(@"C:\Windows\Fonts\");
-            //fm.SetDefaultsFontFamily(serif: "Segoe UI", sans_serif: "Arial", monospace: "Lucida Console");
-            //fm.SetDefaultsFontFamily(serif: "ms serif", sans_serif: "ms san serif", monospace: "Lucida Console");
-
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
-            var hc = new HtmlContainer(renderer);
-            string html = "<html><body style=\"font-size:16pt;\"><div style=\"background-color: #efe;width:100%;\"><center>";
-            html += "<span style=\"background-color: #eef\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
-            html += "</center></div>";
-            html += "<img src=\"bkg.jpg\"/><img src=\"transparent.png\"/>";
-            html += "</body></html>";
-            var rect = hc.adapter.GetRendererRect().ToRSize();
-            //string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
-            //css += "img {width:50%;}";
-
-            var css_data = CssData.Parse(hc.adapter, "", false);
-
-            hc.SetHtml(html, css_data);
-            hc.PerformLayout();
-
-
-
-
-            //TestFM(renderer, "", 1.5f);
-            //TestFM(renderer, "", 1.5f);
-            //TestFM(renderer, "", 1.5f);
-            //TestFM(renderer, "", 1.5f);
-            //TestFM(renderer, "", 0.5f);
-            //TestFM(renderer, "", 1f);
-            //TestFM(renderer, "", 2f);
-
-            //PT_Serif_Italic_Bug(renderer);
-
-            watch.Stop();
-            Console.WriteLine("Render time:{0}", watch.ElapsedMilliseconds);
-
-            SDL.SDL_RenderPresent(renderer);
-
-            bool exit = false;
-            while (!exit)
-            {
-                while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
-                {
-                    if (e.type == SDL.SDL_EventType.SDL_QUIT)
-                        exit = true;
-                }
-                //
-                SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                SDL.SDL_RenderClear(renderer);
-                /*
-                //hc.PerformLayout();
-                var rect = hc.adapter.GetRendererRect().ToRSize();
-                hc.ht.PageSize
-                string css = "body{width:" + rect.Width.ToString() + "px;height:" + rect.Height.ToString() + "px;}";
-                Console.WriteLine(css);
-                var css_data = CssData.Parse(hc.adapter, css);
-                hc.SetHtml(html, css_data);
-                hc.PerformLayout();
-                */
-                hc.PerformPaint();
-                SDL.SDL_RenderPresent(renderer);
-                SDL.SDL_Delay(50);
-            }
-            fm.Dispose();
-            ResourceManager.Quit();
-            QuitSDL2();
-
-
-        }
     }
 }

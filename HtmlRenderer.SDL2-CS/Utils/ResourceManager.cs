@@ -13,7 +13,7 @@ using SDL2;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
-    public sealed class ResourceManager
+    internal sealed class ResourceManager
     {
         private static ResourceManager _instance = null;
         private static Dictionary<string, IntPtr> _imageTexture = new Dictionary<string, IntPtr>();

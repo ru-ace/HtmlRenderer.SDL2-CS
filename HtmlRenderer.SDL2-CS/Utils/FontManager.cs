@@ -11,11 +11,11 @@ using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 
 namespace HtmlRenderer.SDL2_CS.Utils
 {
-    public sealed class FontManager : IDisposable
+    internal sealed class FontManager : IDisposable
     {
         //Singleton 
         private static FontManager _instance = null;
-        public bool UseRWops = false;
+        public bool UseRWops = true;
         public bool CreateRWopsCacheOnFontRegister = false;
         public bool UseFontCache = true;
         internal class Font : IDisposable
