@@ -101,10 +101,32 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         {
             //TODO Use brush 
             //Console.WriteLine("Graphics.DrawRectangle x:{0} y:{1} w:{2} h:{3}", x, y, width, height);
-            brush.ToBrushA().color.SetToSDLRenderer();
+            var brushA = brush.ToBrushA();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
-            if (SDL.SDL_RenderFillRect(_renderer, ref rect) < 0)
-                Helpers.ShowSDLError("Graphics.DrawRectangle:Unable to SDL_RenderFillRect!");
+            if (brushA.isImage)
+            {   //Fill with texture
+
+
+                double xs = (width / brushA.image_dstRect.Width + (width % brushA.image_dstRect.Width == 0 ? 0 : 1f) + (brushA.image_translateTransformLocation.X == x ? 0 : 1f));
+                double ys = (height / brushA.image_dstRect.Height + (height % brushA.image_dstRect.Height == 0 ? 0 : 1) + (brushA.image_translateTransformLocation.Y == y ? 0 : 1f));
+                for (int xi = 0; xi < xs; xi++)
+                {
+                    for (int yi = 0; yi < ys; yi++)
+                    {
+                        double dst_x = (x + xi * brushA.image_dstRect.Width) + (x == brushA.image_translateTransformLocation.X ? 0 : brushA.image_translateTransformLocation.X);
+                        double dst_y = (y + yi * brushA.image_dstRect.Height) + (y == brushA.image_translateTransformLocation.Y ? 0 : brushA.image_translateTransformLocation.Y);
+                        var dst_rrect = new RRect { X = dst_x, Y = dst_y, Width = brushA.image_dstRect.Width, Height = brushA.image_dstRect.Height };
+                        brushA.image.Draw(_renderer, dst_rrect);
+                    }
+                }
+            }
+            else
+            {
+                //Fill with solid color
+                brushA.color.SetToSDLRenderer();
+                if (SDL.SDL_RenderFillRect(_renderer, ref rect) < 0)
+                    Helpers.ShowSDLError("Graphics.DrawRectangle:Unable to SDL_RenderFillRect!");
+            }
         }
 
 
@@ -178,8 +200,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override RBrush GetTextureBrush(RImage image, RRect dstRect, RPoint translateTransformLocation)
         {
-            //Console.WriteLine("Graphics.GetTextureBrush()");
-            return new BrushAdapter(RColor.FromArgb(255, 255, 0, 0));
+            return new BrushAdapter(image, dstRect, translateTransformLocation);
         }
 
         // TODO low priority 

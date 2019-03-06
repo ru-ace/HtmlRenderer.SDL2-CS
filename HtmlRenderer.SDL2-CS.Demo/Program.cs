@@ -69,9 +69,6 @@ namespace HtmlRenderer.SDL2_CS.Demo
             var renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             renderer.ShowSDLError("Renderer could not be created!");
 
-            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL.SDL_RenderClear(renderer);
-
 
             var hc = new HtmlContainer(renderer,
                 fm_font_directory: "fonts", fm_serif: "PT Serif", fm_sans_serif: "PT Sans", fm_monospace: "PT Mono");
@@ -79,13 +76,16 @@ namespace HtmlRenderer.SDL2_CS.Demo
 
             string html_text = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
             string html_tables = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
+            string html = System.IO.File.ReadAllText(@"test.html");
 
-            string html = "<html><body style=\"font-size:16pt;margin:0px;\"><div style=\"background-color: #efe;background-image: url(transparent.png);width:100%;\"><center>";
+            /* 
+            string html = "<html><body style=\"font-size:16pt;margin:0px;\"><div style=\"background-image: url(transparent.png);width:100%;\"><center>";
             html += "<span style=\"background-color: #eef;text-decoration: underline;\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
             html += "</center></div>";
-            html += "<img src=\"bkg.jpg\" style=\"width:100%;opacity: 0.5;\"/><img src=\"transparent.png\"/>";
+            html += "<img src=\"bkg.jpg\" style=\"width:100%;opacity: 0.5;\"/>";
             html += "</body></html>";
-
+            Console.WriteLine(html);
+            */
             hc.SetHtml(html);
             //hc.SetHtml(html_text);
             //hc.SetHtml(html_tables);
