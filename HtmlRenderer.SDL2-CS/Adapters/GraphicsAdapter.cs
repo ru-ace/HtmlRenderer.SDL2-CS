@@ -150,121 +150,38 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RBrush brush, RGraphicsPath path)
         {
-            //Console.WriteLine("Graphics.DrawPath B");
+
             //TODO Use brush and draw arc 
             var b = brush.ToBrushA();
             var p = path.ToPathA();
             if (b.isImage)
             {
+                //Console.WriteLine("Graphics.DrawPath(B.Image)");
+                var rect = p.rect;
+                var texture = b.RenderTexture(IntPtr.Zero, rect);
+                var rects = p.GetSDLRects();
+                foreach (SDL.SDL_Rect r in rects)
+                {
+                    var dst_rect = r;
+                    SDL.SDL_Rect src_rect = dst_rect;
+                    src_rect.x -= rect.x;
+                    src_rect.y -= rect.y;
+                    if (SDL.SDL_RenderCopy(_renderer, texture, ref src_rect, ref dst_rect) < 0)
+                        Helpers.ShowSDLError("Graphics.DrawPath(B):Unable to SDL_RenderCopy!");
+                }
+
+
+                SDL.SDL_DestroyTexture(texture);
 
             }
             else
             {
-
-                GraphicsPathAdapter.PathItem ctl = new GraphicsPathAdapter.PathItem(), ctr = new GraphicsPathAdapter.PathItem(), cbl = new GraphicsPathAdapter.PathItem(), cbr = new GraphicsPathAdapter.PathItem();
-                List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+                //Console.WriteLine("Graphics.DrawPath(B.Color)");
                 b.color.SetToSDLRenderer();
-                for (int i = 1; i < p.pathItems.Count; i++)
-                {
-                    var pi0 = p.pathItems[i - 1];
-                    var pi1 = p.pathItems[i];
-                    if (pi1.arc)
-                    {
-                        rects.AddRange(DrawArc(pi1));
-                        switch (pi1.corner)
-                        {
-                            case RGraphicsPath.Corner.TopLeft: ctl = pi1; break;
-                            case RGraphicsPath.Corner.TopRight: ctr = pi1; break;
-                            case RGraphicsPath.Corner.BottomLeft: cbl = pi1; break;
-                            case RGraphicsPath.Corner.BottomRight: cbr = pi1; break;
-                        }
-
-                    }
-                }
-                int xl = ctl.arc_cx >= cbl.arc_cx ? ctl.arc_cx : cbl.arc_cx;
-                int xr = ctr.arc_cx <= cbr.arc_cx ? ctr.arc_cx : cbr.arc_cx;
-                int yt = ctl.arc_y;
-                int yb = cbl.arc_y + cbl.arc_r;
-                rects.Add(new SDL.SDL_Rect { x = xl, y = yt, w = xr - xl, h = yb - yt });
-                if (ctl.arc_r == cbl.arc_r)
-                    rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
-                else
-                {
-                    if (ctl.arc_r < cbl.arc_r)
-                    {
-                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
-                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_cx, y = ctl.arc_y, w = cbl.arc_r - ctl.arc_r, h = cbl.arc_cy - ctl.arc_y });
-
-                    }
-                    else
-                    {
-                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
-                        rects.Add(new SDL.SDL_Rect { x = cbl.arc_cx, y = ctl.arc_cy, w = ctl.arc_r - cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy + cbl.arc_r });
-                    }
-                }
-                if (ctr.arc_r == cbr.arc_r)
-                    rects.Add(new SDL.SDL_Rect { x = ctr.arc_x, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
-                else
-                {
-                    if (ctr.arc_r < cbr.arc_r)
-                    {
-                        rects.Add(new SDL.SDL_Rect { x = cbr.arc_cx, y = ctr.arc_y, w = cbr.arc_r - ctr.arc_r, h = cbr.arc_cy - ctr.arc_y });
-                        rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
-                    }
-                    else
-                    {
-                        rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r - cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy + cbr.arc_r });
-                        rects.Add(new SDL.SDL_Rect { x = cbr.arc_x, y = ctr.arc_cy, w = cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
-                    }
-                }
-
-
+                var rects = p.GetSDLRects();
                 SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
             }
         }
-
-
-        private List<SDL.SDL_Rect> DrawArc(GraphicsPathAdapter.PathItem corner)
-        {
-            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
-            Double step = 90f / ((double)corner.arc_r * Math.PI / 2f);
-
-
-            int last_y = 10000000;
-            for (double angle = 0; angle < 90; angle += step)
-            {
-                double r_angle = Math.PI * ((double)corner.arc_startAngle + angle) / 180f;
-                int y = corner.arc_cy + (int)((double)corner.arc_r * Math.Sin(r_angle));
-                int x = corner.arc_cx + (int)((double)corner.arc_r * Math.Cos(r_angle));
-                int x1 = 0, x2 = 0;
-                if (last_y != y)
-                {
-                    switch (corner.corner)
-                    {
-                        case RGraphicsPath.Corner.TopLeft:
-                        case RGraphicsPath.Corner.BottomLeft:
-                            x1 = x;
-                            x2 = corner.arc_cx;
-                            break;
-                        case RGraphicsPath.Corner.TopRight:
-                        case RGraphicsPath.Corner.BottomRight:
-                            x1 = corner.arc_cx;
-                            x2 = x;
-                            break;
-                    }
-
-
-                }
-
-                rects.Add(new SDL.SDL_Rect { x = x1, y = y, w = x2 - x1, h = 1 });
-                last_y = y;
-            }
-            return rects;
-            //SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
-            //var rect = new SDL.SDL_Rect { x = coner.arc_x, y = coner.arc_y, w = coner.arc_r, h = coner.arc_r };
-            //SDL.SDL_RenderDrawRect(_renderer, ref rect);
-        }
-
 
         public override void DrawPolygon(RBrush brush, RPoint[] points)
         {
@@ -294,25 +211,15 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             //Console.WriteLine("Graphics.DrawRectangle x:{0} y:{1} w:{2} h:{3}", x, y, width, height);
             var brushA = brush.ToBrushA();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
+
             if (brushA.isImage)
             {   //Fill with texture
-
-
-                double xs = (width / brushA.image_dstRect.Width + (width % brushA.image_dstRect.Width == 0 ? 0 : 1f) + (brushA.image_translateTransformLocation.X == x ? 0 : 1f));
-                double ys = (height / brushA.image_dstRect.Height + (height % brushA.image_dstRect.Height == 0 ? 0 : 1) + (brushA.image_translateTransformLocation.Y == y ? 0 : 1f));
-                for (int xi = 0; xi < xs; xi++)
-                {
-                    for (int yi = 0; yi < ys; yi++)
-                    {
-                        double dst_x = (x + xi * brushA.image_dstRect.Width) + (x == brushA.image_translateTransformLocation.X ? 0 : brushA.image_translateTransformLocation.X);
-                        double dst_y = (y + yi * brushA.image_dstRect.Height) + (y == brushA.image_translateTransformLocation.Y ? 0 : brushA.image_translateTransformLocation.Y);
-                        var dst_rrect = new RRect { X = dst_x, Y = dst_y, Width = brushA.image_dstRect.Width, Height = brushA.image_dstRect.Height };
-                        brushA.image.Draw(_renderer, dst_rrect);
-                    }
-                }
+                //Console.WriteLine("DrawRectangle(B) Image");
+                brushA.RenderTexture(_renderer, rect);
             }
             else
             {
+                //Console.WriteLine("DrawRectangle(B) Color");
                 //Fill with solid color
                 brushA.color.SetToSDLRenderer();
                 if (SDL.SDL_RenderFillRect(_renderer, ref rect) < 0)

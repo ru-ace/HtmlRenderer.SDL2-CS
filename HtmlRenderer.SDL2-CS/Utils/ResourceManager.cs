@@ -16,7 +16,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
     internal sealed class ResourceManager
     {
         private static ResourceManager _instance = null;
-        private static Dictionary<string, IntPtr> _imageTexture = new Dictionary<string, IntPtr>();
+        private static Dictionary<string, IntPtr> _imageSurface = new Dictionary<string, IntPtr>();
 
         private ResourceManager()
         {
@@ -26,29 +26,20 @@ namespace HtmlRenderer.SDL2_CS.Utils
         {
 
             Console.WriteLine(args.Src);
-            if (!_imageTexture.ContainsKey(args.Src))
+            if (!_imageSurface.ContainsKey(args.Src))
             {
+
                 var img_surface = SDL_image.IMG_Load(args.Src);
                 if (img_surface.ShowSDLError("OnImageLoad: Unable to IMG_Load!"))
                     return;
 
-                var texture_text = SDL.SDL_CreateTextureFromSurface(SDL2Adapter.Instance.Renderer, img_surface);
-                if (texture_text.ShowSDLError("OnImageLoad: Unable to CreateTextureFromSurface!"))
-                {
-                    SDL.SDL_FreeSurface(img_surface);
-                    return;
-                }
-                SDL.SDL_FreeSurface(img_surface);
-                _imageTexture[args.Src] = texture_text;
+                _imageSurface[args.Src] = img_surface;
             }
             args.Handled = true;
             //foreach (var kv in args.Attributes)
             //Console.WriteLine("{0}: {1}", kv.Key, kv.Value);
 
-            args.Callback(_imageTexture[args.Src]);
-
-
-
+            args.Callback(_imageSurface[args.Src]);
             Console.WriteLine(args.Src);
 
         }
@@ -64,9 +55,9 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public static void Quit()
         {
-            foreach (var kv in _imageTexture)
+            foreach (var kv in _imageSurface)
             {
-                SDL.SDL_DestroyTexture(kv.Value);
+                SDL.SDL_FreeSurface(kv.Value);
             }
 
         }

@@ -29,6 +29,11 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         }
         internal readonly List<PathItem> pathItems = new List<PathItem>();
 
+        internal int? x1 = null, y1 = null, x2 = null, y2 = null;
+
+        internal SDL.SDL_Rect rect { get { return new SDL.SDL_Rect { x = x1.Value, y = y1.Value, w = x2.Value - x1.Value, h = y2.Value - y1.Value }; } }
+
+
         public override void ArcTo(double x, double y, double size, Corner corner)
         {
             if (pathItems.Count == 0)
@@ -45,12 +50,110 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                 case Corner.TopLeft: arc_item.arc_startAngle = 180; arc_item.arc_cx += arc_item.arc_r; arc_item.arc_cy += arc_item.arc_r; break;
                 case Corner.BottomLeft: arc_item.arc_startAngle = 90; arc_item.arc_cx += arc_item.arc_r; break;
                 case Corner.TopRight: arc_item.arc_startAngle = 270; arc_item.arc_cy += arc_item.arc_r - 1; break;
-                case Corner.BottomRight: arc_item.arc_startAngle = 0; break;
+                case Corner.BottomRight: arc_item.arc_startAngle = 0; arc_item.arc_cy -= 1; break;
             }
 
             pathItems.Add(arc_item);
         }
 
+        internal List<SDL.SDL_Rect> GetSDLRects()
+        {
+            PathItem ctl = new PathItem(), ctr = new PathItem(), cbl = new PathItem(), cbr = new PathItem();
+            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+
+            for (int i = 1; i < pathItems.Count; i++)
+            {
+                var pi0 = pathItems[i - 1];
+                var pi1 = pathItems[i];
+                if (pi1.arc)
+                {
+                    rects.AddRange(GetArcSDLRects(pi1));
+                    switch (pi1.corner)
+                    {
+                        case RGraphicsPath.Corner.TopLeft: ctl = pi1; break;
+                        case RGraphicsPath.Corner.TopRight: ctr = pi1; break;
+                        case RGraphicsPath.Corner.BottomLeft: cbl = pi1; break;
+                        case RGraphicsPath.Corner.BottomRight: cbr = pi1; break;
+                    }
+
+                }
+            }
+            int xl = ctl.arc_cx >= cbl.arc_cx ? ctl.arc_cx : cbl.arc_cx;
+            int xr = ctr.arc_cx <= cbr.arc_cx ? ctr.arc_cx : cbr.arc_cx;
+            int yt = ctl.arc_y;
+            int yb = cbl.arc_y + cbl.arc_r;
+            rects.Add(new SDL.SDL_Rect { x = xl, y = yt, w = xr - xl, h = yb - yt });
+            if (ctl.arc_r == cbl.arc_r)
+                rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+            else
+            {
+                if (ctl.arc_r < cbl.arc_r)
+                {
+                    rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+                    rects.Add(new SDL.SDL_Rect { x = ctl.arc_cx, y = ctl.arc_y, w = cbl.arc_r - ctl.arc_r, h = cbl.arc_cy - ctl.arc_y });
+
+                }
+                else
+                {
+                    rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+                    rects.Add(new SDL.SDL_Rect { x = cbl.arc_cx, y = ctl.arc_cy, w = ctl.arc_r - cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy + cbl.arc_r });
+                }
+            }
+            if (ctr.arc_r == cbr.arc_r)
+                rects.Add(new SDL.SDL_Rect { x = ctr.arc_x, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+            else
+            {
+                if (ctr.arc_r < cbr.arc_r)
+                {
+                    rects.Add(new SDL.SDL_Rect { x = cbr.arc_cx, y = ctr.arc_y, w = cbr.arc_r - ctr.arc_r, h = cbr.arc_cy - ctr.arc_y });
+                    rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+                }
+                else
+                {
+                    rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r - cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy + cbr.arc_r });
+                    rects.Add(new SDL.SDL_Rect { x = cbr.arc_x, y = ctr.arc_cy, w = cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+                }
+            }
+            return rects;
+        }
+
+        private List<SDL.SDL_Rect> GetArcSDLRects(PathItem corner)
+        {
+            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+            Double step = 90f / ((double)corner.arc_r * Math.PI / 2f);
+
+
+            int last_y = 10000000;
+            for (double angle = 0; angle < 90; angle += step)
+            {
+                double r_angle = Math.PI * ((double)corner.arc_startAngle + angle) / 180f;
+                int y = corner.arc_cy + (int)((double)corner.arc_r * Math.Sin(r_angle));
+                int x = corner.arc_cx + (int)((double)corner.arc_r * Math.Cos(r_angle));
+                int x1 = 0, x2 = 0;
+                if (last_y != y)
+                {
+                    switch (corner.corner)
+                    {
+                        case RGraphicsPath.Corner.TopLeft:
+                        case RGraphicsPath.Corner.BottomLeft:
+                            x1 = x;
+                            x2 = corner.arc_cx;
+                            break;
+                        case RGraphicsPath.Corner.TopRight:
+                        case RGraphicsPath.Corner.BottomRight:
+                            x1 = corner.arc_cx;
+                            x2 = x;
+                            break;
+                    }
+
+
+                }
+
+                rects.Add(new SDL.SDL_Rect { x = x1, y = y, w = x2 - x1, h = 1 });
+                last_y = y;
+            }
+            return rects;
+        }
 
         public override void Dispose()
         {
@@ -69,33 +172,12 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         private void AddPoint(double x, double y)
         {
+            if (!x1.HasValue || (x1.HasValue && x < x1)) x1 = (int)x;
+            if (!x2.HasValue || (x2.HasValue && x > x2)) x2 = (int)x;
+            if (!y1.HasValue || (y1.HasValue && y < y1)) y1 = (int)y;
+            if (!y2.HasValue || (y2.HasValue && y > y2)) y2 = (int)y;
             pathItems.Add(new PathItem { arc = false, x = (int)x, y = (int)y });
         }
 
-        /// <summary>
-        /// Get arc start angle for the given corner.
-        /// </summary>
-        private static int GetStartAngle(Corner corner)
-        {
-            int startAngle;
-            switch (corner)
-            {
-                case Corner.TopLeft:
-                    startAngle = 180;
-                    break;
-                case Corner.TopRight:
-                    startAngle = 270;
-                    break;
-                case Corner.BottomLeft:
-                    startAngle = 90;
-                    break;
-                case Corner.BottomRight:
-                    startAngle = 0;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("corner");
-            }
-            return startAngle;
-        }
     }
 }

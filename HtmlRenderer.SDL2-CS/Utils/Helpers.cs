@@ -122,7 +122,7 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public static void ShowSDLError(string error_text)
         {
-            Console.WriteLine(error_text + " SDL_ttf Error: {0}", SDL.SDL_GetError());
+            Console.WriteLine(error_text + " Error: {0}", SDL.SDL_GetError());
         }
 
     }
