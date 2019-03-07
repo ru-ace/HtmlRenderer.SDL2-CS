@@ -41,17 +41,93 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         public override void DrawLine(RPen pen, double x1, double y1, double x2, double y2)
         {
 
-            //TODO Use pen
-            pen.ToPenA().color.SetToSDLRenderer();
-            if (SDL.SDL_RenderDrawLine(_renderer, (int)x1, (int)y1, (int)x2, (int)y2) < 0)
-                Helpers.ShowSDLError("Graphics.DrawString:Unable to SDL_RenderDrawLine!");
+            if (y1 == y2)
+                DrawLineH(pen, (int)y1, (int)x1, (int)x2);
+            else if (x1 == x2)
+                DrawLineV(pen, (int)x1, (int)y1, (int)y2);
+            else
+            {
+                pen.ToPenA().color.SetToSDLRenderer();
+                if (SDL.SDL_RenderDrawLine(_renderer, (int)x1, (int)y1, (int)x2, (int)y2) < 0)
+                    Helpers.ShowSDLError("Graphics.DrawLine:Unable to SDL_RenderDrawLine!");
+            }
+        }
+
+        private void DrawLineH(RPen rpen, int y1, int x1, int x2)
+        {
+            PenAdapter pen = rpen.ToPenA();
+            pen.color.SetToSDLRenderer();
+            int width = (int)pen.width;
+            int w0, w1;
+            w0 = w1 = width / 2;
+            //w1 -= (width != 1 && width % 2 == 1) ? 1 : 0;
+
+            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+            int length = (int)(x2 - x1 + 1);
+
+            switch (pen.dashStyle)
+            {
+                case RDashStyle.Solid:
+                    rects.Add(new SDL.SDL_Rect { x = x1, y = y1 - w0, w = length, h = width });
+                    break;
+                case RDashStyle.Dot:
+                    for (int x = (int)x1; x <= x2 - width + 1; x += width * 2)
+                        rects.Add(new SDL.SDL_Rect { x = x, y = y1 - w0, w = width, h = width });
+                    if (length % (width * 2) < width)
+                        rects.Add(new SDL.SDL_Rect { x = x2 - length % (width * 2) + 1, y = y1 - w0, w = length % width, h = width });
+                    break;
+                case RDashStyle.Dash:
+                    for (int x = (int)x1; x <= x2 - width * 2 + 1; x += width * 3)
+                        rects.Add(new SDL.SDL_Rect { x = x, y = y1 - w0, w = width * 2, h = width });
+                    if (length % (width * 3) < width * 2)
+                        rects.Add(new SDL.SDL_Rect { x = x2 - length % (width * 3) + 1, y = y1 - w0, w = length % (width * 3) + 1, h = width });
+                    break;
+            }
+
+            SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
+
+        }
+        private void DrawLineV(RPen rpen, int x1, int y1, int y2)
+        {
+            PenAdapter pen = rpen.ToPenA();
+            pen.color.SetToSDLRenderer();
+            int width = (int)pen.width;
+            int w0, w1;
+            w0 = w1 = width / 2;
+            //w1 -= (width != 1 && width % 2 == 1) ? 1 : 0;
+
+            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+            int length = (int)(y2 - y1 + 1);
+
+            switch (pen.dashStyle)
+            {
+                case RDashStyle.Solid:
+                    rects.Add(new SDL.SDL_Rect { x = x1 - w0, y = y1, w = width, h = length });
+                    break;
+                case RDashStyle.Dot:
+                    for (int y = y1; y <= y2 - width + 1; y += width * 2)
+                        rects.Add(new SDL.SDL_Rect { x = x1 - w0, y = y, w = width, h = width });
+                    if (length % (width * 2) < width)
+                        rects.Add(new SDL.SDL_Rect { x = x1 - w0, y = y2 - length % (width * 2) + 1, w = width, h = length % width });
+                    break;
+                case RDashStyle.Dash:
+                    for (int y = y1; y <= y2 - width * 2 + 1; y += width * 3)
+                        rects.Add(new SDL.SDL_Rect { x = x1 - w0, y = y, w = width, h = width * 2 });
+                    if (length % (width * 3) < width * 2)
+                        rects.Add(new SDL.SDL_Rect { x = x1 - w0, y = y2 - length % (width * 3) + 1, w = width, h = length % (width * 3) });
+                    break;
+            }
+
+            SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
 
         }
 
         public override void DrawPath(RPen pen, RGraphicsPath path)
         {
+            Console.WriteLine("Graphics.DrawPath P");
             //TODO Use pen and realize arc 
             pen.ToPenA().color.SetToSDLRenderer();
+
 
             SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[path.ToPathA().pathItems.Count];
             for (int i = 0; i < sdl_points.Length; i++)
@@ -64,6 +140,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RBrush brush, RGraphicsPath path)
         {
+            Console.WriteLine("Graphics.DrawPath B");
             //TODO Use brush and draw arc 
             brush.ToBrushA().color.SetToSDLRenderer();
 
@@ -72,12 +149,13 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                 sdl_points[i] = path.ToPathA().pathItems[i].ToSDL();
 
             if (SDL.SDL_RenderDrawLines(_renderer, sdl_points, sdl_points.Length) < 0)
-                Helpers.ShowSDLError("Graphics.DrawPolygon:Unable to SDL_RenderDrawLines!");
+                Helpers.ShowSDLError("Graphics.DrawPath:Unable to SDL_RenderDrawLines!");
 
         }
 
         public override void DrawPolygon(RBrush brush, RPoint[] points)
         {
+            Console.WriteLine("Graphics.DrawPolygon");
             //TODO Use brush
             brush.ToBrushA().color.SetToSDLRenderer();
             SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[points.Length];
@@ -99,7 +177,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawRectangle(RBrush brush, double x, double y, double width, double height)
         {
-            //TODO Use brush 
+
             //Console.WriteLine("Graphics.DrawRectangle x:{0} y:{1} w:{2} h:{3}", x, y, width, height);
             var brushA = brush.ToBrushA();
             var rect = new SDL.SDL_Rect { x = (int)x, y = (int)y, w = (int)width, h = (int)height };
@@ -230,15 +308,16 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override object SetAntiAliasSmoothingMode()
         {
-            Console.WriteLine("Graphics.SetAntiAliasSmoothingMode(): NotImplemented");
+            //Console.WriteLine("Graphics.SetAntiAliasSmoothingMode(): NotImplemented");
             //there is no need for it
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return null;
         }
         public override void PushClipExclude(RRect rect)
         {   // pdfSharp is not implement this
             // Seem not used 
             Console.WriteLine("Graphics.PushClipExclude(): NotImplemented");
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

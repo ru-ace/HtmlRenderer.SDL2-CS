@@ -13,6 +13,13 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         internal RColor color = RColor.FromArgb(255, 0, 0, 0);
         internal double width = 1;
         internal RDashStyle dashStyle = RDashStyle.Solid;
+        // dotted = Dot
+        // dashed = Dash
+        // double = Solid
+        // groove = Solid
+        // ridge = Solid
+        // inset = DrarPolygon
+        // outset = DrawPolygon
 
         public PenAdapter(RColor color)
         {
