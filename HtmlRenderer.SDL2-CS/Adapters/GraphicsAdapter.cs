@@ -124,34 +124,147 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RPen pen, RGraphicsPath path)
         {
-            Console.WriteLine("Graphics.DrawPath P");
+            //Console.WriteLine("Graphics.DrawPath P");
             //TODO Use pen and realize arc 
             pen.ToPenA().color.SetToSDLRenderer();
-
+            var pathA = path.ToPathA();
 
             SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[path.ToPathA().pathItems.Count];
-            for (int i = 0; i < sdl_points.Length; i++)
-                sdl_points[i] = path.ToPathA().pathItems[i].ToSDL();
-
-            if (SDL.SDL_RenderDrawLines(_renderer, sdl_points, sdl_points.Length) < 0)
-                Helpers.ShowSDLError("Graphics.DrawPolygon:Unable to SDL_RenderDrawLines!");
+            for (int i = 1; i < sdl_points.Length; i++)
+            {
+                if (pathA.pathItems[i].arc)
+                {
+                    //this.DrawRectangle()
+                }
+                else
+                {
+                    this.DrawLine(pen, pathA.pathItems[i - 1].x, pathA.pathItems[i - 1].y, pathA.pathItems[i].x, pathA.pathItems[i].y);
+                }
+                //sdl_points[i] = pathA.pathItems[i].ToSDL();
+                //Console.WriteLine("  {0} {1}", i, pathA.pathItems[i].arc ? "arc" : "line");
+            }
+            //if (SDL.SDL_RenderDrawLines(_renderer, sdl_points, sdl_points.Length) < 0)
+            //Helpers.ShowSDLError("Graphics.DrawPolygon:Unable to SDL_RenderDrawLines!");
 
         }
 
         public override void DrawPath(RBrush brush, RGraphicsPath path)
         {
-            Console.WriteLine("Graphics.DrawPath B");
+            //Console.WriteLine("Graphics.DrawPath B");
             //TODO Use brush and draw arc 
-            brush.ToBrushA().color.SetToSDLRenderer();
+            var b = brush.ToBrushA();
+            var p = path.ToPathA();
+            if (b.isImage)
+            {
 
-            SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[path.ToPathA().pathItems.Count];
-            for (int i = 0; i < sdl_points.Length; i++)
-                sdl_points[i] = path.ToPathA().pathItems[i].ToSDL();
+            }
+            else
+            {
 
-            if (SDL.SDL_RenderDrawLines(_renderer, sdl_points, sdl_points.Length) < 0)
-                Helpers.ShowSDLError("Graphics.DrawPath:Unable to SDL_RenderDrawLines!");
+                GraphicsPathAdapter.PathItem ctl = new GraphicsPathAdapter.PathItem(), ctr = new GraphicsPathAdapter.PathItem(), cbl = new GraphicsPathAdapter.PathItem(), cbr = new GraphicsPathAdapter.PathItem();
+                List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+                b.color.SetToSDLRenderer();
+                for (int i = 1; i < p.pathItems.Count; i++)
+                {
+                    var pi0 = p.pathItems[i - 1];
+                    var pi1 = p.pathItems[i];
+                    if (pi1.arc)
+                    {
+                        rects.AddRange(DrawArc(pi1));
+                        switch (pi1.corner)
+                        {
+                            case RGraphicsPath.Corner.TopLeft: ctl = pi1; break;
+                            case RGraphicsPath.Corner.TopRight: ctr = pi1; break;
+                            case RGraphicsPath.Corner.BottomLeft: cbl = pi1; break;
+                            case RGraphicsPath.Corner.BottomRight: cbr = pi1; break;
+                        }
 
+                    }
+                }
+                int xl = ctl.arc_cx >= cbl.arc_cx ? ctl.arc_cx : cbl.arc_cx;
+                int xr = ctr.arc_cx <= cbr.arc_cx ? ctr.arc_cx : cbr.arc_cx;
+                int yt = ctl.arc_y;
+                int yb = cbl.arc_y + cbl.arc_r;
+                rects.Add(new SDL.SDL_Rect { x = xl, y = yt, w = xr - xl, h = yb - yt });
+                if (ctl.arc_r == cbl.arc_r)
+                    rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+                else
+                {
+                    if (ctl.arc_r < cbl.arc_r)
+                    {
+                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = ctl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_cx, y = ctl.arc_y, w = cbl.arc_r - ctl.arc_r, h = cbl.arc_cy - ctl.arc_y });
+
+                    }
+                    else
+                    {
+                        rects.Add(new SDL.SDL_Rect { x = ctl.arc_x, y = ctl.arc_cy, w = cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy });
+                        rects.Add(new SDL.SDL_Rect { x = cbl.arc_cx, y = ctl.arc_cy, w = ctl.arc_r - cbl.arc_r, h = cbl.arc_cy - ctl.arc_cy + cbl.arc_r });
+                    }
+                }
+                if (ctr.arc_r == cbr.arc_r)
+                    rects.Add(new SDL.SDL_Rect { x = ctr.arc_x, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+                else
+                {
+                    if (ctr.arc_r < cbr.arc_r)
+                    {
+                        rects.Add(new SDL.SDL_Rect { x = cbr.arc_cx, y = ctr.arc_y, w = cbr.arc_r - ctr.arc_r, h = cbr.arc_cy - ctr.arc_y });
+                        rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+                    }
+                    else
+                    {
+                        rects.Add(new SDL.SDL_Rect { x = ctr.arc_cx, y = ctr.arc_cy, w = ctr.arc_r - cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy + cbr.arc_r });
+                        rects.Add(new SDL.SDL_Rect { x = cbr.arc_x, y = ctr.arc_cy, w = cbr.arc_r, h = cbr.arc_cy - ctr.arc_cy });
+                    }
+                }
+
+
+                SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
+            }
         }
+
+
+        private List<SDL.SDL_Rect> DrawArc(GraphicsPathAdapter.PathItem corner)
+        {
+            List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
+            Double step = 90f / ((double)corner.arc_r * Math.PI / 2f);
+
+
+            int last_y = 10000000;
+            for (double angle = 0; angle < 90; angle += step)
+            {
+                double r_angle = Math.PI * ((double)corner.arc_startAngle + angle) / 180f;
+                int y = corner.arc_cy + (int)((double)corner.arc_r * Math.Sin(r_angle));
+                int x = corner.arc_cx + (int)((double)corner.arc_r * Math.Cos(r_angle));
+                int x1 = 0, x2 = 0;
+                if (last_y != y)
+                {
+                    switch (corner.corner)
+                    {
+                        case RGraphicsPath.Corner.TopLeft:
+                        case RGraphicsPath.Corner.BottomLeft:
+                            x1 = x;
+                            x2 = corner.arc_cx;
+                            break;
+                        case RGraphicsPath.Corner.TopRight:
+                        case RGraphicsPath.Corner.BottomRight:
+                            x1 = corner.arc_cx;
+                            x2 = x;
+                            break;
+                    }
+
+
+                }
+
+                rects.Add(new SDL.SDL_Rect { x = x1, y = y, w = x2 - x1, h = 1 });
+                last_y = y;
+            }
+            return rects;
+            //SDL.SDL_RenderFillRects(_renderer, rects.ToArray(), rects.Count);
+            //var rect = new SDL.SDL_Rect { x = coner.arc_x, y = coner.arc_y, w = coner.arc_r, h = coner.arc_r };
+            //SDL.SDL_RenderDrawRect(_renderer, ref rect);
+        }
+
 
         public override void DrawPolygon(RBrush brush, RPoint[] points)
         {

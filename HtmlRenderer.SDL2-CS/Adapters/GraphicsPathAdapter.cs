@@ -18,9 +18,12 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             public int y;
 
             public bool arc;
-            public int arc_top;
-            public int arc_left;
+            public int arc_x;
+            public int arc_y;
+            public int arc_cx;
+            public int arc_cy;
             public int arc_r;
+            public int arc_startAngle;
             public Corner corner;
             public SDL.SDL_Point ToSDL() { return new SDL.SDL_Point { x = x, y = y }; }
         }
@@ -32,8 +35,19 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                 AddPoint(x, y);
             var lastPoint = pathItems.Last();
             var arc_item = new PathItem { arc = true, x = (int)x, y = (int)y, corner = corner, arc_r = (int)size };
-            arc_item.arc_top = (int)(Math.Min(x, lastPoint.x) - (corner == Corner.TopRight || corner == Corner.BottomRight ? size : 0));
-            arc_item.arc_left = (int)(Math.Min(y, lastPoint.y) - (corner == Corner.BottomLeft || corner == Corner.BottomRight ? size : 0));
+            arc_item.arc_x = (int)(x - ((corner == Corner.TopRight || corner == Corner.TopLeft) ? size : 0));// (int)(Math.Min(x, lastPoint.x) - (corner == Corner.TopRight || corner == Corner.BottomRight ? size : 0));
+            arc_item.arc_y = (int)(y - ((corner == Corner.TopRight || corner == Corner.BottomRight) ? size : 0));//(int)(Math.Min(y, lastPoint.y) - (corner == Corner.BottomLeft || corner == Corner.BottomRight ? size : 0));
+            arc_item.arc_cx = arc_item.arc_x;
+            arc_item.arc_cy = arc_item.arc_y;
+
+            switch (corner)
+            {
+                case Corner.TopLeft: arc_item.arc_startAngle = 180; arc_item.arc_cx += arc_item.arc_r; arc_item.arc_cy += arc_item.arc_r; break;
+                case Corner.BottomLeft: arc_item.arc_startAngle = 90; arc_item.arc_cx += arc_item.arc_r; break;
+                case Corner.TopRight: arc_item.arc_startAngle = 270; arc_item.arc_cy += arc_item.arc_r - 1; break;
+                case Corner.BottomRight: arc_item.arc_startAngle = 0; break;
+            }
+
             pathItems.Add(arc_item);
         }
 
