@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
-using HtmlRenderer.SDL2_CS.Utils;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Utils;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class GraphicsAdapter : RGraphics
     {
@@ -17,9 +17,9 @@ namespace HtmlRenderer.SDL2_CS.Adapters
 
         public GraphicsAdapter(RAdapter adapter, RRect initialClip) : base(adapter, initialClip)
         {
-            _renderer = SDL2Adapter.Instance.Renderer;
+            _renderer = SDL2Adapter.Instance.renderer;
             if (_renderer == IntPtr.Zero)
-                throw new Exception("Graphics.GraphicsAdapter(): SDL2Adapter.Instance.Renderer not set");
+                throw new Exception("Graphics.GraphicsAdapter(): SDL2Adapter.Instance.renderer not set");
         }
 
         public override void Dispose()

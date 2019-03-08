@@ -7,9 +7,9 @@ using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using SDL2;
 using System.Runtime.InteropServices;
-using HtmlRenderer.SDL2_CS;
+using AcentricPixels.HtmlRenderer.SDL2_CS;
 
-namespace HtmlRenderer.SDL2_CS.Utils
+namespace AcentricPixels.HtmlRenderer.SDL2_CS
 {
     public static class Helpers
     {
@@ -67,12 +67,12 @@ namespace HtmlRenderer.SDL2_CS.Utils
 
         public static void SetToSDLRenderer(this SDL.SDL_Color color)
         {
-            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.Renderer, color.r, color.g, color.b, color.a);
+            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.renderer, color.r, color.g, color.b, color.a);
         }
 
         public static void SetToSDLRenderer(this RColor color)
         {
-            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.Renderer, color.R, color.G, color.B, color.A);
+            SDL.SDL_SetRenderDrawColor(Adapters.SDL2Adapter.Instance.renderer, color.R, color.G, color.B, color.A);
         }
 
         public static RColor ToRColor(this SDL.SDL_Color color)

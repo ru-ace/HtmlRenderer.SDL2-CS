@@ -2,9 +2,9 @@
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 //using System.Drawing; // for GenerateColorCode
 
-namespace HtmlRenderer.SDL2_CS.Utils
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
 {
-    public static class Color
+    internal static class Color
     {
         /*
         static public string GenerateColorCode()

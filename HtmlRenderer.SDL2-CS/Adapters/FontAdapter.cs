@@ -7,7 +7,7 @@ using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class FontAdapter : RFont
 

@@ -8,13 +8,13 @@ using TheArtOfDev.HtmlRenderer.Core;
 using TheArtOfDev.HtmlRenderer.Core.Entities;
 using TheArtOfDev.HtmlRenderer.Core.Parse;
 using TheArtOfDev.HtmlRenderer.Core.Utils;
-using HtmlRenderer.SDL2_CS.Adapters;
-using HtmlRenderer.SDL2_CS.Utils;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Adapters;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Utils;
 using SDL2;
 
 
 
-namespace HtmlRenderer.SDL2_CS
+namespace AcentricPixels.HtmlRenderer.SDL2_CS
 {
     public sealed class HtmlContainer : IDisposable
     {
@@ -48,7 +48,7 @@ namespace HtmlRenderer.SDL2_CS
             fm.SetDefaultsFontFamily(serif: fm_serif, sans_serif: fm_sans_serif, monospace: fm_monospace);
 
             var sdl2a = SDL2Adapter.Instance;
-            sdl2a.Renderer = renderer;
+            sdl2a.renderer = renderer;
             _htmlContainerInt = new HtmlContainerInt(sdl2a);
             _htmlContainerInt.SetMargins(0);
             _htmlContainerInt.PageSize = new RSize(9999, 9999);
@@ -91,7 +91,7 @@ namespace HtmlRenderer.SDL2_CS
         }
 
         /// <summary>
-        /// Raised when Html Renderer request scroll to specific location.<br/>
+        /// Raised when Html renderer request scroll to specific location.<br/>
         /// This can occur on document anchor click.
         /// </summary>
         public event EventHandler<HtmlScrollEventArgs> ScrollChange
@@ -375,6 +375,10 @@ namespace HtmlRenderer.SDL2_CS
         /// <param name="g">the device to use to render</param>
         public void PerformPaint()
         {
+            var renderer = SDL2Adapter.Instance.renderer;
+            SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL.SDL_RenderClear(renderer);
+
             using (var ig = new GraphicsAdapter(SDL2Adapter.Instance, SDL2Adapter.Instance.GetRendererRect()))
             {
                 _htmlContainerInt.PerformPaint(ig);

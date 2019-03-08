@@ -8,10 +8,10 @@ using TheArtOfDev.HtmlRenderer.Core;
 using TheArtOfDev.HtmlRenderer.Core.Entities;
 using TheArtOfDev.HtmlRenderer.Core.Parse;
 using TheArtOfDev.HtmlRenderer.Core.Utils;
-using HtmlRenderer.SDL2_CS.Adapters;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Adapters;
 using SDL2;
 
-namespace HtmlRenderer.SDL2_CS.Utils
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
 {
     internal sealed class ResourceManager
     {

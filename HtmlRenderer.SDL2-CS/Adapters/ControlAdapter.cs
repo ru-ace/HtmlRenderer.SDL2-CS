@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
-using HtmlRenderer.SDL2_CS.Adapters;
-using HtmlRenderer.SDL2_CS.Utils;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Adapters;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Utils;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class ControlAdapter : RControl
     {

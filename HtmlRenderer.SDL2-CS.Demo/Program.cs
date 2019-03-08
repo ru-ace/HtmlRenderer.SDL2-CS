@@ -1,13 +1,10 @@
 ﻿using System;
-using SDL2;
-using HtmlRenderer.SDL2_CS.Utils;
-using HtmlRenderer.SDL2_CS.Adapters;
-using TheArtOfDev.HtmlRenderer.Adapters.Entities;
-using TheArtOfDev.HtmlRenderer.Core;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using SDL2;
+using AcentricPixels.HtmlRenderer.SDL2_CS;
 
-namespace HtmlRenderer.SDL2_CS.Demo
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
 {
     class Program
     {
@@ -99,8 +96,7 @@ namespace HtmlRenderer.SDL2_CS.Demo
                         exit = true;
                 }
                 //
-                SDL.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                SDL.SDL_RenderClear(renderer);
+
                 hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
                 hc.PerformLayout();
                 hc.PerformPaint();

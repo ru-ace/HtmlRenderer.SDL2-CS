@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using SDL2;
-using HtmlRenderer.SDL2_CS.Utils;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Utils;
 using System.Runtime.InteropServices;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     public sealed class SDL2Adapter : RAdapter
     {
@@ -62,7 +62,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         }
 
 
-        public IntPtr Renderer
+        public IntPtr renderer
         {
             set { _renderer = value; }
             get { return _renderer; }

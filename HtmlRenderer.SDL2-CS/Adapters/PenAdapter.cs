@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class PenAdapter : RPen
     {

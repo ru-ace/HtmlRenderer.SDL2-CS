@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
-using HtmlRenderer.SDL2_CS.Adapters;
-using HtmlRenderer.SDL2_CS.Utils;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Adapters;
+using AcentricPixels.HtmlRenderer.SDL2_CS.Utils;
 using SDL2;
 
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
     internal sealed class BrushAdapter : RBrush
     {
@@ -73,7 +73,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
             }
             if (software_renderer)
             {
-                IntPtr texture = SDL.SDL_CreateTextureFromSurface(SDL2Adapter.Instance.Renderer, surface);
+                IntPtr texture = SDL.SDL_CreateTextureFromSurface(SDL2Adapter.Instance.renderer, surface);
                 SDL.SDL_DestroyRenderer(renderer);
                 SDL.SDL_FreeSurface(surface);
                 return texture;

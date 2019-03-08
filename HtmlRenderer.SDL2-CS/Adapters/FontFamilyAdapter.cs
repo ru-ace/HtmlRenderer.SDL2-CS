@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheArtOfDev.HtmlRenderer.Adapters;
 
-namespace HtmlRenderer.SDL2_CS.Adapters
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 {
 
     internal sealed class FontFamilyAdapter : RFontFamily

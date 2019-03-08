@@ -9,7 +9,7 @@ using System.IO;
 using System.Security.Cryptography;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 
-namespace HtmlRenderer.SDL2_CS.Utils
+namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
 {
     internal sealed class FontManager : IDisposable
     {
