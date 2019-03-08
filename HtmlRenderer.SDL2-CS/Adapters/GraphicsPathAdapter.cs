@@ -49,8 +49,8 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             {
                 case Corner.TopLeft: arc_item.arc_startAngle = 180; arc_item.arc_cx += arc_item.arc_r; arc_item.arc_cy += arc_item.arc_r; break;
                 case Corner.BottomLeft: arc_item.arc_startAngle = 90; arc_item.arc_cx += arc_item.arc_r; break;
-                case Corner.TopRight: arc_item.arc_startAngle = 270; arc_item.arc_cy += arc_item.arc_r - 1; break;
-                case Corner.BottomRight: arc_item.arc_startAngle = 0; arc_item.arc_cy -= 1; break;
+                case Corner.TopRight: arc_item.arc_startAngle = 270; arc_item.arc_cy += arc_item.arc_r; break;
+                case Corner.BottomRight: arc_item.arc_startAngle = 0; break;
             }
 
             pathItems.Add(arc_item);
@@ -154,6 +154,62 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             }
             return rects;
         }
+        internal List<SDL.SDL_Point> GetArcSDPoints(PenAdapter pen, PathItem corner)
+        {
+            List<SDL.SDL_Point> points = new List<SDL.SDL_Point>();
+
+            Double step = 90f / ((double)corner.arc_r * Math.PI / 2f);
+            //points.Add(new SDL.SDL_Point { x = corner.arc_cx, y = corner.arc_cy });
+
+            for (double angle = 0; angle <= 90; angle += step)
+            {
+                points.Add(GetArcSDLPointAtAngle(corner, angle));
+                switch (pen.dashStyle)
+                {
+                    case RDashStyle.Solid:
+                        break;
+                    case RDashStyle.Dot:
+                        angle += step * 1.5f;
+                        break;
+                    case RDashStyle.Dash:
+                        angle += step;
+                        points.Add(GetArcSDLPointAtAngle(corner, angle));
+                        angle += step * 2f;
+                        break;
+                }
+
+            }
+            return points;
+        }
+
+        private SDL.SDL_Point GetArcSDLPointAtAngle(PathItem corner, double angle)
+        {
+            int r = corner.arc_r;
+            int cx = corner.arc_cx;
+            int cy = corner.arc_cy;
+
+            switch (corner.corner)
+            {
+                case RGraphicsPath.Corner.TopLeft:
+                    break;
+                case RGraphicsPath.Corner.BottomLeft:
+                    r++;
+                    break;
+                case RGraphicsPath.Corner.TopRight:
+                    break;
+                case RGraphicsPath.Corner.BottomRight:
+                    r++;
+
+                    break;
+            }
+            double r_angle = Math.PI * ((double)corner.arc_startAngle + angle) / 180f;
+            int x = cx + (int)(r * Math.Cos(r_angle));
+            int y = cy + (int)(r * Math.Sin(r_angle));
+            return new SDL.SDL_Point { x = x, y = y };
+
+        }
+
+
 
         public override void Dispose()
         {

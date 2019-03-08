@@ -40,7 +40,6 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawLine(RPen pen, double x1, double y1, double x2, double y2)
         {
-
             if (y1 == y2)
                 DrawLineH(pen, (int)y1, (int)x1, (int)x2);
             else if (x1 == x2)
@@ -55,6 +54,8 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         private void DrawLineH(RPen rpen, int y1, int x1, int x2)
         {
+            if (x1 > x2) { int t = x1; x1 = x2; x2 = t; }
+
             PenAdapter pen = rpen.ToPenA();
             pen.color.SetToSDLRenderer();
             int width = (int)pen.width;
@@ -63,7 +64,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             //w1 -= (width != 1 && width % 2 == 1) ? 1 : 0;
 
             List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
-            int length = (int)(x2 - x1 + 1);
+            int length = (int)(x2 - x1) + 1;
 
             switch (pen.dashStyle)
             {
@@ -89,6 +90,8 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
         }
         private void DrawLineV(RPen rpen, int x1, int y1, int y2)
         {
+            if (y1 > y2) { int t = y1; y1 = y2; y2 = t; }
+
             PenAdapter pen = rpen.ToPenA();
             pen.color.SetToSDLRenderer();
             int width = (int)pen.width;
@@ -97,7 +100,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             //w1 -= (width != 1 && width % 2 == 1) ? 1 : 0;
 
             List<SDL.SDL_Rect> rects = new List<SDL.SDL_Rect>();
-            int length = (int)(y2 - y1 + 1);
+            int length = (int)(y2 - y1);
 
             switch (pen.dashStyle)
             {
@@ -124,27 +127,24 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RPen pen, RGraphicsPath path)
         {
-            //Console.WriteLine("Graphics.DrawPath P");
+
             //TODO Use pen and realize arc 
             pen.ToPenA().color.SetToSDLRenderer();
-            var pathA = path.ToPathA();
+            var p = path.ToPathA();
 
-            SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[path.ToPathA().pathItems.Count];
-            for (int i = 1; i < sdl_points.Length; i++)
+
+            for (int i = 1; i < p.pathItems.Count; i++)
             {
-                if (pathA.pathItems[i].arc)
+                if (p.pathItems[i].arc)
                 {
-                    //this.DrawRectangle()
+                    var points = p.GetArcSDPoints(pen.ToPenA(), p.pathItems[i]);
+                    SDL.SDL_RenderDrawPoints(_renderer, points.ToArray(), points.Count);
                 }
                 else
                 {
-                    this.DrawLine(pen, pathA.pathItems[i - 1].x, pathA.pathItems[i - 1].y, pathA.pathItems[i].x, pathA.pathItems[i].y);
+                    this.DrawLine(pen, p.pathItems[i - 1].x, p.pathItems[i - 1].y, p.pathItems[i].x, p.pathItems[i].y);
                 }
-                //sdl_points[i] = pathA.pathItems[i].ToSDL();
-                //Console.WriteLine("  {0} {1}", i, pathA.pathItems[i].arc ? "arc" : "line");
             }
-            //if (SDL.SDL_RenderDrawLines(_renderer, sdl_points, sdl_points.Length) < 0)
-            //Helpers.ShowSDLError("Graphics.DrawPolygon:Unable to SDL_RenderDrawLines!");
 
         }
 

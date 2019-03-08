@@ -58,7 +58,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
             InitSDL2();
 
             var window = SDL.SDL_CreateWindow("HtmlRenderer.SDL2-CS.Demo", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED,
-                                            640, 480, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+                                            1440, 900, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
             if (!window.ShowSDLError("Window could not be created!"))
                 Console.WriteLine("Window created!");
