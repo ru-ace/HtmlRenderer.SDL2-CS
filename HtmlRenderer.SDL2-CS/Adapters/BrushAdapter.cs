@@ -40,8 +40,7 @@ namespace HtmlRenderer.SDL2_CS.Adapters
         {
             double x = rect.x;
             double y = rect.y;
-            double width = rect.w;
-            double height = rect.h;
+
             IntPtr surface, xrenderer;
             bool software_renderer = false;
             if (renderer == IntPtr.Zero)
@@ -56,16 +55,18 @@ namespace HtmlRenderer.SDL2_CS.Adapters
                 xrenderer = renderer;
                 software_renderer = false;
             }
-            double xs = (width / image_dstRect.Width + (width % image_dstRect.Width == 0 ? 0 : 1f) + (image_translateTransformLocation.X == x ? 0 : 1f));
-            double ys = (height / image_dstRect.Height + (height % image_dstRect.Height == 0 ? 0 : 1) + (image_translateTransformLocation.Y == y ? 0 : 1f));
+            double img_width = image.Width;
+            double img_height = image.Height;
+            double xs = (image_dstRect.Width / img_width);
+            double ys = (image_dstRect.Height / img_height);
             var xtexture = image.GetTexture(xrenderer, software_renderer);
             for (int xi = 0; xi < xs; xi++)
             {
                 for (int yi = 0; yi < ys; yi++)
                 {
-                    int dst_x = (int)((x + xi * image_dstRect.Width) + (x == image_translateTransformLocation.X ? 0 : image_translateTransformLocation.X));
-                    int dst_y = (int)((y + yi * image_dstRect.Height) + (y == image_translateTransformLocation.Y ? 0 : image_translateTransformLocation.Y));
-                    var dst_rect = new SDL.SDL_Rect { x = dst_x, y = dst_y, w = (int)image_dstRect.Width, h = (int)image_dstRect.Height };
+                    int dst_x = (int)(image_dstRect.X + xi * img_width) - (software_renderer ? rect.x : 0);
+                    int dst_y = (int)(image_dstRect.Y + yi * img_height) - (software_renderer ? rect.y : 0);
+                    var dst_rect = new SDL.SDL_Rect { x = dst_x, y = dst_y, w = (int)img_width, h = (int)img_height };
                     if (SDL.SDL_RenderCopy(xrenderer, xtexture, IntPtr.Zero, ref dst_rect) < 0)
                         Helpers.ShowSDLError("BrushAdapter.RenderTexture:Unable to SDL_RenderCopy!");
                 }
