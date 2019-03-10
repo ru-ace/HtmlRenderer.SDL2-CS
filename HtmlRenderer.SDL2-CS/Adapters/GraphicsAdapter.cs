@@ -137,7 +137,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             {
                 if (p.pathItems[i].arc)
                 {
-                    var points = p.GetArcSDPoints(pen.ToPenA(), p.pathItems[i]);
+                    var points = p.GetArcSDLPoints(pen.ToPenA(), p.pathItems[i]);
                     SDL.SDL_RenderDrawPoints(_renderer, points.ToArray(), points.Count);
                 }
                 else

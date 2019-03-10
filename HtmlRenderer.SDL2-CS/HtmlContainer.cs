@@ -136,7 +136,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <summary>
         /// The internal core html container
         /// </summary>
-        internal HtmlContainerInt HtmlContainerInt
+        public HtmlContainerInt HtmlContainerInt
         {
             get { return _htmlContainerInt; }
         }
@@ -287,13 +287,16 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
 
 
 
+
         /// <summary>
         /// Init with optional document and stylesheet.
         /// </summary>
         /// <param name="htmlSource">the html to init with, init empty if not given</param>
+        /// <param name="resourceDirectory">optional: image directory(mostly directory where .html file)</param>
         /// <param name="baseCssData">optional: the stylesheet to init with, init default if not given</param>
-        public void SetHtml(string htmlSource, CssData baseCssData = null)
+        public void SetHtml(string htmlSource, string resourceDirectory = "", CssData baseCssData = null)
         {
+            ResourceManager.directory = resourceDirectory;
             _htmlContainerInt.SetHtml(htmlSource, baseCssData);
         }
 

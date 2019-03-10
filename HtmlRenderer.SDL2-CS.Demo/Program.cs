@@ -58,7 +58,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
             InitSDL2();
 
             var window = SDL.SDL_CreateWindow("HtmlRenderer.SDL2-CS.Demo", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED,
-                                            1440, 900, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+                                            640, 480, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
             if (!window.ShowSDLError("Window could not be created!"))
                 Console.WriteLine("Window created!");
@@ -67,45 +67,41 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
             renderer.ShowSDLError("Renderer could not be created!");
 
 
-            var hc = new HtmlContainer(renderer,
-                fm_font_directory: "fonts", fm_serif: "PT Serif", fm_sans_serif: "PT Sans", fm_monospace: "PT Mono");
-            //fm_font_directory: @"C:\Windows\Fonts\", fm_serif: "Segoe UI", fm_sans_serif: "Arial", fm_monospace: "Lucida Console");
-
-            string html_text = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
-            string html_tables = System.IO.File.ReadAllText(@"/home/ace/Projects/HtmlRenderer.SDL2-CS/HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
-            string html = System.IO.File.ReadAllText(@"test.html");
-
-            /* 
-            string html = "<html><body style=\"font-size:16pt;margin:0px;\"><div style=\"background-image: url(transparent.png);width:100%;\"><center>";
-            html += "<span style=\"background-color: #eef;text-decoration: underline;\"><i>Hello</i> <b>World</b></span><br>HtmlRenderer.SDL2-CS here!<br>";
-            html += "</center></div>";
-            html += "<img src=\"bkg.jpg\" style=\"width:100%;opacity: 0.5;\"/>";
-            html += "</body></html>";
-            Console.WriteLine(html);
-            */
-            hc.SetHtml(html);
-            //hc.SetHtml(html_text);
-            //hc.SetHtml(html_tables);
-
-            bool exit = false;
-            while (!exit)
+            using (var hc = new HtmlContainer(renderer,
+                fm_font_directory: "fonts", fm_serif: "PT Serif", fm_sans_serif: "PT Sans", fm_monospace: "PT Mono"))
             {
-                while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
+                //fm_font_directory: @"C:\Windows\Fonts\", fm_serif: "Segoe UI", fm_sans_serif: "Arial", fm_monospace: "Lucida Console");
+
+                string html_text = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
+                string html_tables = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
+                string html = System.IO.File.ReadAllText(@"html/test.html");
+
+                hc.SetHtml(html, "html/");
+                //hc.SetHtml(html_text);
+                //hc.SetHtml(html_tables);
+
+                bool exit = false;
+                while (!exit)
                 {
-                    if (e.type == SDL.SDL_EventType.SDL_QUIT)
-                        exit = true;
+                    while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
+                    {
+                        if (e.type == SDL.SDL_EventType.SDL_QUIT)
+                            exit = true;
+                    }
+                    //
+
+                    hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
+                    //hc.HtmlContainerInt.Root.Boxes[0].Boxes[1].Boxes[0].Height = hc.MaxSize.Height.ToString() + "px";
+                    //hc.HtmlContainerInt.Root.Boxes[0].Boxes[1].Size = hc.adapter.GetRendererRect().ToRSize();
+
+                    hc.PerformLayout();
+                    hc.PerformPaint();
+                    SDL.SDL_RenderPresent(renderer);
+                    SDL.SDL_Delay(50);
                 }
-                //
 
-                hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
-                hc.PerformLayout();
-                hc.PerformPaint();
-                SDL.SDL_RenderPresent(renderer);
-                SDL.SDL_Delay(50);
+
             }
-
-
-            hc.Dispose();
             QuitSDL2();
 
 

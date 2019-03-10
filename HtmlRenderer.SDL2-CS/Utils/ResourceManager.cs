@@ -17,7 +17,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
     {
         private static ResourceManager _instance = null;
         private static Dictionary<string, IntPtr> _imageSurface = new Dictionary<string, IntPtr>();
-
+        internal static string directory = "";
         private ResourceManager()
         {
 
@@ -25,11 +25,11 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
         public static void OnImageLoad(object sender, HtmlImageLoadEventArgs args)
         {
 
-            Console.WriteLine(args.Src);
+            Console.WriteLine(directory + args.Src);
             if (!_imageSurface.ContainsKey(args.Src))
             {
 
-                var img_surface = SDL_image.IMG_Load(args.Src);
+                var img_surface = SDL_image.IMG_Load(directory + args.Src);
                 if (img_surface.ShowSDLError("OnImageLoad: Unable to IMG_Load!"))
                     return;
 
@@ -40,8 +40,6 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
             //Console.WriteLine("{0}: {1}", kv.Key, kv.Value);
 
             args.Callback(_imageSurface[args.Src]);
-            Console.WriteLine(args.Src);
-
         }
         public static ResourceManager Instance
         {

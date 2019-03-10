@@ -154,7 +154,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
             }
             return rects;
         }
-        internal List<SDL.SDL_Point> GetArcSDPoints(PenAdapter pen, PathItem corner)
+        internal List<SDL.SDL_Point> GetArcSDLPoints(PenAdapter pen, PathItem corner)
         {
             List<SDL.SDL_Point> points = new List<SDL.SDL_Point>();
 
