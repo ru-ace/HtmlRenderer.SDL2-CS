@@ -81,6 +81,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
                 //hc.SetHtml(html_tables);
 
                 bool exit = false;
+                int i = 0;
                 while (!exit)
                 {
                     while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
@@ -88,16 +89,17 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
                         if (e.type == SDL.SDL_EventType.SDL_QUIT)
                             exit = true;
                     }
-                    //
+
 
                     hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
-                    //hc.HtmlContainerInt.Root.Boxes[0].Boxes[1].Boxes[0].Height = hc.MaxSize.Height.ToString() + "px";
-                    //hc.HtmlContainerInt.Root.Boxes[0].Boxes[1].Size = hc.adapter.GetRendererRect().ToRSize();
-
+                    var el = hc.document.getElementById("text");
+                    el.style["height"] = "" + i + "px";
+                    el.innerHTML = "" + i;
                     hc.PerformLayout();
                     hc.PerformPaint();
                     SDL.SDL_RenderPresent(renderer);
                     SDL.SDL_Delay(50);
+                    i++;
                 }
 
 

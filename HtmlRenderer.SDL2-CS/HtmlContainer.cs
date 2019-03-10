@@ -136,7 +136,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <summary>
         /// The internal core html container
         /// </summary>
-        public HtmlContainerInt HtmlContainerInt
+        internal HtmlContainerInt HtmlContainerInt
         {
             get { return _htmlContainerInt; }
         }
@@ -149,7 +149,15 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
             get { return _htmlContainerInt.CssData; }
         }
 
+        /// <summary>
+        /// DOM Document wrapper
+        /// </summary>
+        /// <value></value>
 
+        public DOMDocument document
+        {
+            get { return _htmlContainerInt.document; }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating if anti-aliasing should be avoided for geometry like backgrounds and borders (default - false).

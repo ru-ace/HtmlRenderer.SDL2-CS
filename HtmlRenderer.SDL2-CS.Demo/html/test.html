@@ -4,42 +4,43 @@
     <style>
         html,
         body {
-            width: 100%;
-            height: 100%;
             margin: 0;
             font-size: 16pt;
-
+            width: 100%;
+            height: 100%;
         }
 
-        div.content {
+        .content {
             background-color: #aaf;
-            /*border-color: blue;
-            border: 1px solid;
-            */
+            border: 1px red solid;
+
             background-image: url(bkg2.jpg);
             background-position: center center;
-
+            /*
             width: 100%;
             height: 100%;
-            margin: 0;
+ */
             font-size: 16pt;
-
         }
 
         div.inner {
             margin: 19px;
+            /*padding: 5px;*/
             background-color: #afa;
             /*
             border-radius: 20px;
+           
+            border: red 1px dotted;
+            */
+            overflow: hidden;
             background-image: url(transparent.png);
             background-repeat: repeat;
             background-position: center center;
-            border: red 1px dotted;
-            */
 
-            height: 60px;
-            width: 120px;
-            float: left;
+            height: 150px;
+            width: 150px;
+
+
         }
 
         div.inner_1 {
@@ -88,20 +89,16 @@
 </head>
 
 <body>
-    <!--transparent.png border-radius: 10px; border:red 1px solid; border-radius: 5px 10px/15px 20px;-->
+    <!--
+    <table class="content">
+        <tr style="border:1px green solid;">
+            <td style="border:1px cyan solid;">12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7</td>
+        </tr>
+    </table>
+    -->
     <div class="content">
-        <div class="inner inner_1"></div>
-        <!--<div class="inner inner_2"></div>
-        <div class="inner inner_3"></div>
-        <div class="inner inner_4"></div>
-        <div class="inner inner_5"></div>
-        <div class="inner inner_6"></div>
-        <div class="inner inner_7"></div>
-        <div class="inner inner_8"></div>
-        <div class="inner inner_10"></div>
-        -->
+        <div class="inner" id="text">12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7</div>
     </div>
-
     <!--<img src="bkg.jpg" style="width:100%;opacity: 0.5;" />-->
 </body>
 

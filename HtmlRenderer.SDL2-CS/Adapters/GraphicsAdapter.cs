@@ -127,8 +127,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RPen pen, RGraphicsPath path)
         {
-
-            //TODO Use pen and realize arc 
+            //! Arcs draws with width 1px
             pen.ToPenA().color.SetToSDLRenderer();
             var p = path.ToPathA();
 
@@ -150,8 +149,6 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPath(RBrush brush, RGraphicsPath path)
         {
-
-            //TODO Use brush and draw arc 
             var b = brush.ToBrushA();
             var p = path.ToPathA();
             if (b.isImage)
@@ -185,6 +182,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
 
         public override void DrawPolygon(RBrush brush, RPoint[] points)
         {
+
             Console.WriteLine("Graphics.DrawPolygon");
             //TODO Use brush
             brush.ToBrushA().color.SetToSDLRenderer();
