@@ -10,23 +10,51 @@
             height: 100%;
         }
 
+        body {
+            background-color: gainsboro;
+            background-image: url(bkg3.jpg);
+            background-position: center center;
+        }
+
+        a:hover {
+            color: red;
+        }
+
         .content {
+            margin: 10px;
             background-color: #aaf;
             border: 1px red solid;
-
+            /*
             background-image: url(bkg2.jpg);
             background-position: center center;
-            /*
-            width: 100%;
-            height: 100%;
- */
+            */
+            color: white;
             font-size: 16pt;
+
+            width: 200px;
+            height: 400px;
+
+        }
+
+        .content tr {
+            border: 1px greenyellow solid;
+            min-height: 10px;
+            max-height: 100px;
+            height: 33%;
+        }
+
+        .content td {
+            border: 1px cyan solid;
+            min-width: 10px;
+            max-width: 100px;
+            width: 33%;
         }
 
         div.inner {
             margin: 19px;
             /*padding: 5px;*/
             background-color: #afa;
+            color: black;
             /*
             border-radius: 20px;
            
@@ -34,8 +62,8 @@
             */
             overflow: hidden;
             background-image: url(transparent.png);
-            background-repeat: repeat;
-            background-position: center center;
+            background-repeat: no-repeat;
+            background-position: 50px 50px;
 
             height: 150px;
             width: 150px;
@@ -43,61 +71,76 @@
 
         }
 
-        div.inner_1 {
-            border-width: 1px;
-            border-style: solid;
-        }
-
-        div.inner_2 {
-            border-width: 1px;
-            border-style: dotted;
-        }
-
-        div.inner_3 {
-            border-width: 1px;
-            border-style: dashed;
-        }
-
-        div.inner_4 {
-            border-width: 4px;
-        }
-
-        div.inner_5 {
-            border-width: 5px;
-        }
-
-        div.inner_6 {
-            border-width: 6px;
-        }
-
-        div.inner_7 {
-            border-width: 7px;
-        }
-
-        div.inner_8 {
-            border-width: 8px;
-        }
-
-        div.inner_9 {
-            border-width: 9px;
-        }
-
-        div.inner_10 {
-            border-width: 10px;
+        div.inner:hover {
+            background-color: red;
         }
     </style>
 </head>
+<!--12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7-->
 
 <body>
     <!--
+
     <table class="content">
-        <tr style="border:1px green solid;">
-            <td style="border:1px cyan solid;">12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7</td>
+     
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Savings</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>January</td>
+                <td>$100</td>
+            </tr>
+            <tr>
+                <td>February</td>
+                <td>$80</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Sum</td>
+                <td>$180</td>
+            </tr>
+        </tfoot>
+       
+        <tr>
+            <td>#</td>
+            <td>#</td>
+            <td>#</td>
         </tr>
+        <tr>
+            <td>#</td>
+            <td>#</td>
+            <td>#</td>
+        </tr>
+        <tr>
+            <td>#</td>
+            <td>#</td>
+            <td>#</td>
+        </tr>
+       
+        <tr>
+            <td colspan="2">#</td>
+            <td rowspan="3">#</td>
+        </tr>
+        <tr>
+            <td rowspan="2">#</td>
+            <td>#</td>
+        </tr>
+        <tr>
+            <td>#</td>
+        </tr>
+
     </table>
-    -->
+-->
     <div class="content">
-        <div class="inner" id="text">12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7</div>
+        <div class="inner" id="text">
+            12345678901234567890<br>2<br>3<br>4<br>5<br>6<br>7
+        </div>
+        <a href="xxxx">test</a>
     </div>
     <!--<img src="bkg.jpg" style="width:100%;opacity: 0.5;" />-->
 </body>

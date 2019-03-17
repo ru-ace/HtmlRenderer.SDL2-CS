@@ -72,11 +72,12 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
             {
                 //fm_font_directory: @"C:\Windows\Fonts\", fm_serif: "Segoe UI", fm_sans_serif: "Arial", fm_monospace: "Lucida Console");
 
-                string html_text = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
-                string html_tables = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
-                string html = System.IO.File.ReadAllText(@"html/test.html");
 
-                hc.SetHtml(html, "html/");
+                //string html_text = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
+                //string html_tables = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
+                string html_file = @"../../html/test.html";
+                string html_dir = "html/";
+                hc.SetHtml(System.IO.File.ReadAllText(html_file), html_dir);
                 //hc.SetHtml(html_text);
                 //hc.SetHtml(html_tables);
 
@@ -86,15 +87,48 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
                 {
                     while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
                     {
-                        if (e.type == SDL.SDL_EventType.SDL_QUIT)
-                            exit = true;
+                        switch (e.type)
+                        {
+                            case SDL.SDL_EventType.SDL_QUIT:
+                                exit = true;
+                                break;
+                            case SDL.SDL_EventType.SDL_KEYDOWN:
+                                switch (e.key.keysym.scancode)
+                                {
+                                    case SDL.SDL_Scancode.SDL_SCANCODE_F5:
+                                        Console.WriteLine("F5 - reload {0}", html_file);
+                                        hc.SetHtml(System.IO.File.ReadAllText(html_file), html_dir);
+                                        break;
+                                    case SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE:
+                                        exit = true;
+                                        break;
+                                }
+
+                                break;
+
+                            case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                                hc.HandleMouseMove(e.motion);
+                                break;
+
+                            case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                                hc.HandleMouseDown(e.button);
+                                break;
+                            case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
+                                hc.HandleMouseUp(e.button);
+                                break;
+
+                        }
+
                     }
 
 
                     hc.MaxSize = hc.adapter.GetRendererRect().ToRSize();
+                    /*
                     var el = hc.document.getElementById("text");
                     el.style["height"] = "" + i + "px";
+                    el.style["width"] = "" + i + "px";
                     el.innerHTML = "" + i;
+                    */
                     hc.PerformLayout();
                     hc.PerformPaint();
                     SDL.SDL_RenderPresent(renderer);

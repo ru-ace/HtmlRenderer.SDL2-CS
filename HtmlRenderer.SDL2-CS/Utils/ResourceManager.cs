@@ -15,9 +15,11 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
 {
     internal sealed class ResourceManager
     {
-        private static ResourceManager _instance = null;
+
         private static Dictionary<string, IntPtr> _imageSurface = new Dictionary<string, IntPtr>();
         internal static string directory = "";
+        private static Dictionary<int, IntPtr> _cursor = new Dictionary<int, IntPtr>();
+
         private ResourceManager()
         {
 
@@ -41,22 +43,23 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Utils
 
             args.Callback(_imageSurface[args.Src]);
         }
-        public static ResourceManager Instance
+
+        public static IntPtr GetSDLCursor(SDL.SDL_SystemCursor system_cursor)
         {
-            get
-            {
-                if (_instance == null)
-                    _instance = new ResourceManager();
-                return _instance;
-            }
+            int cursor_id = (int)system_cursor;
+            if (!_cursor.ContainsKey(cursor_id))
+                _cursor[cursor_id] = SDL.SDL_CreateSystemCursor(system_cursor);
+
+            return _cursor[cursor_id];
         }
 
         public static void Quit()
         {
             foreach (var kv in _imageSurface)
-            {
                 SDL.SDL_FreeSurface(kv.Value);
-            }
+
+            foreach (var kv in _cursor)
+                SDL.SDL_FreeCursor(kv.Value);
 
         }
 

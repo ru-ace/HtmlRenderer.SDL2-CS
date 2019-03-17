@@ -153,12 +153,12 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// DOM Document wrapper
         /// </summary>
         /// <value></value>
-
+        /* 
         public DOMDocument document
         {
             get { return _htmlContainerInt.document; }
         }
-
+        */
         /// <summary>
         /// Gets or sets a value indicating if anti-aliasing should be avoided for geometry like backgrounds and borders (default - false).
         /// </summary>
@@ -403,7 +403,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <param name="e">the mouse event args</param>
         public void HandleMouseDown(SDL.SDL_MouseButtonEvent e)
         {
-            _htmlContainerInt.HandleMouseDown(new ControlAdapter(SDL2Adapter.Instance), e.ToRPoint());
+            _htmlContainerInt.HandleMouseDown(new ControlAdapter(SDL2Adapter.Instance, e.ToRPoint(), e), e.ToRPoint());
         }
 
         /// <summary>
@@ -413,7 +413,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <param name="e">the mouse event args</param>
         public void HandleMouseUp(SDL.SDL_MouseButtonEvent e)
         {
-            _htmlContainerInt.HandleMouseUp(new ControlAdapter(SDL2Adapter.Instance), e.ToRPoint(), e.ToRMouseEvent());
+            _htmlContainerInt.HandleMouseUp(new ControlAdapter(SDL2Adapter.Instance, e.ToRPoint(), e), e.ToRPoint(), e.ToRMouseEvent());
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <param name="e">mouse event args</param>
         public void HandleMouseDoubleClick(SDL.SDL_MouseButtonEvent e)
         {
-            _htmlContainerInt.HandleMouseDoubleClick(new ControlAdapter(SDL2Adapter.Instance), e.ToRPoint());
+            _htmlContainerInt.HandleMouseDoubleClick(new ControlAdapter(SDL2Adapter.Instance, e.ToRPoint(), e), e.ToRPoint());
         }
 
         /// <summary>
@@ -433,7 +433,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS
         /// <param name="e">the mouse event args</param>
         public void HandleMouseMove(SDL.SDL_MouseMotionEvent e)
         {
-            _htmlContainerInt.HandleMouseMove(new ControlAdapter(SDL2Adapter.Instance), e.ToRPoint());
+            _htmlContainerInt.HandleMouseMove(new ControlAdapter(SDL2Adapter.Instance, e.ToRPoint()), e.ToRPoint());
         }
 
         /// <summary>
