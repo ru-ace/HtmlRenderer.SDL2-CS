@@ -75,8 +75,15 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Demo
 
                 //string html_text = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm");
                 //string html_tables = System.IO.File.ReadAllText(@"../../../HTML-Renderer/Source/Demo/Common/TestSamples/13.Tables.htm");
-                string html_file = @"../../html/test.html";
-                string html_dir = "html/";
+
+
+                //string html_file = @"../../html/test.html";
+                //string html_dir = "html/";
+
+                string html_file = @"../../../HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm";
+                string html_dir = @"../../../HTML-Renderer/Source/Demo/Common/Samples/";
+
+
                 hc.SetHtml(System.IO.File.ReadAllText(html_file), html_dir);
                 //hc.SetHtml(html_text);
                 //hc.SetHtml(html_tables);

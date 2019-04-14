@@ -183,7 +183,7 @@ namespace AcentricPixels.HtmlRenderer.SDL2_CS.Adapters
         public override void DrawPolygon(RBrush brush, RPoint[] points)
         {
 
-            Console.WriteLine("Graphics.DrawPolygon");
+            //Console.WriteLine("Graphics.DrawPolygon");
             //TODO Use brush
             brush.ToBrushA().color.SetToSDLRenderer();
             SDL.SDL_Point[] sdl_points = new SDL.SDL_Point[points.Length];
