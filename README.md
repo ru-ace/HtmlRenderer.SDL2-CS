@@ -9,6 +9,6 @@ The main goal was to use HtmlRenderer to create a GUI. But at the moment I have 
 
 The adapter basically works and is ready to render documents. But the development was suspended for the reasons described earlier.
 
-Example of rendering [02.Text.htm](HTML-Renderer/Source/Demo/Common/Samples/02.Text.htm)
+Example of rendering [02.Text.htm](https://github.com/ru-ace/HTML-Renderer/blob/master/Source/Demo/Common/Samples/02.Text.htm)
 
 ![Text example](HtmlRenderer.SDL2-CS.Demo/html/example.png)
